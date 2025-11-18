@@ -51,7 +51,7 @@
 - ذخیره‌سازی تمام تنظیمات
 
 <div align="center">
-  <img src="screenshot2.png" alt="بوکینا" width="600">
+  <img src="screenshot2.png" alt="بوکینا" width="400">
 </div>
 
 ### 🕐 ساعت آنالوگ
