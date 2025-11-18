@@ -170,3 +170,182 @@ bookina/
 **توجه:** این پروژه یک افزونه شخصی است و برای استفاده تجاری نیاز به مجوز دارد.
 
 ⭐ اگر این پروژه را دوست دارید، لطفاً آن را در GitHub ستاره دهید!
+
+
+# 📚 Bookina - Personal Dashboard Extension
+
+A beautiful and functional personal dashboard and new tab page for Chrome browser that brings various features together in one place.
+
+![Bookina Dashboard](https://img.shields.io/badge/Bookina-Personal%20Dashboard-blue)
+![Version](https://img.shields.io/badge/version-1.5.0-green)
+![License](https://img.shields.io/badge/license-MIT-lightgrey)
+
+## ✨ Features
+
+### 🔖 Bookmark Management
+- Add, edit, and delete bookmarks
+- Automatic favicon display
+- Drag & Drop for organization
+- Storage in browser memory
+
+### ✅ To-Do List
+- Create new tasks
+- Manage statuses (Not Started, In Progress, Completed)
+- Color-coded statuses
+- Local storage
+
+### 📅 Persian Calendar
+- Complete Persian calendar display
+- Navigation between previous and next months
+- Today's date highlighting
+- Fridays colored as holidays
+- Accurate leap year calculations
+
+### ⏰ Alarm & Reminders
+- Set multiple alarms
+- Play alarm sound
+- Browser notifications
+- Edit and delete alarms
+
+### 🌤️ Weather Status
+- Display weather for different cities in Iran
+- Complete information including temperature, humidity, wind speed
+- City selection from list
+- Automatic updates
+
+### 📰 Breaking News
+- Get latest news from reliable sources
+- Display news headlines
+- Direct links to news
+- Manual refresh capability
+
+### 📝 Sticky Notes
+- Create sticky notes
+- Drag & Drop functionality
+- Note color customization
+- Position and content storage
+
+### 🎨 Appearance Settings
+- Choose from 8 background images
+- Settings storage
+- Glassmorphism UI
+- RTL and Persian font support
+
+## 🚀 Installation & Setup
+
+### Method 1: Install from Chrome Web Store
+(Coming soon)
+
+### Method 2: Manual Installation
+
+1. Download or clone the project:
+```bash
+git clone https://github.com/your-username/bookina.git
+```
+
+2. Open Chrome browser and go to:
+```
+chrome://extensions/
+```
+
+3. Enable Developer Mode (top right corner)
+
+4. Click "Load unpacked" and select the project folder
+
+5. The extension is now installed and ready to use
+
+## 🏗️ Project Structure
+
+```
+bookina/
+├── index.html              # Main page
+├── manifest.json           # Extension configuration file
+├── styles.css              # Main styles
+├── script.js               # Main application logic
+├── alarm.mp3               # Alarm sound
+├── css/
+│   └── clock.css          # Clock styles (if exists)
+├── js/
+│   ├── clock.js           # Clock logic (if exists)
+│   ├── jquery-3.6.0.slim.min.js
+│   └── jquery-ui.min.js
+├── icons/
+│   ├── icon16.png
+│   ├── icon48.png
+│   └── icon128.png
+├── images/
+│   ├── bg1.jpg to bg8.jpg # Background images
+│   └── clock.png
+└── README.md
+```
+
+## 🛠️ Technologies Used
+
+- **HTML5** - Page structure
+- **CSS3** - Styling with Glassmorphism
+- **JavaScript (ES6+)** - Application logic
+- **Chrome Extension API** - Browser integration
+- **Local Storage** - Data storage
+- **Fetch API** - External API data retrieval
+
+## 🔧 APIs Used
+
+### Weather
+- **Service:** OpenWeatherMap
+- **Supported Cities:** Tehran, Mashhad, Isfahan, Shiraz, Tabriz, Karaj, Qom, Ahvaz
+
+### News
+- **Source:** Zoomit.ir
+- **Format:** RSS Feed
+- **News Count:** Latest 10 news items
+
+## 📋 Future Features
+
+- [ ] Dark and light theme support
+- [ ] Cloud synchronization
+- [ ] Clock and date widget
+- [ ] Unit conversion
+- [ ] Event reminders
+- [ ] Multi-language support
+- [ ] Compact Mode
+
+## 🐛 Bug Reporting
+
+If you encounter any issues, please report them via the Issues section on GitHub.
+
+## 🤝 Contribution
+
+Your contributions are always welcome! Please:
+
+1. Fork the project
+2. Create a new branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Create a Pull Request
+
+## 📄 License
+
+This project is released under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👨‍💻 Developer
+
+- **Name:** Bookina Team
+- **Email:** contact@bookina.com
+- **Website:** https://bookina.com
+
+## 🙏 Acknowledgments
+
+- Open source community for valuable tools and libraries
+- OpenWeatherMap for providing free weather API
+- Zoomit.ir for providing RSS news feed
+
+---
+
+**Note:** This project is a personal extension and requires a license for commercial use.
+
+⭐ If you like this project, please give it a star on GitHub!
+
+---
+**فارسی | English**
+
+این فایل README به دو زبان فارسی و انگلیسی ارائه شده است.
