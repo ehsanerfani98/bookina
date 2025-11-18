@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>بوکینا</title>
+  <link rel="stylesheet" href="css/clock.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
+    integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+
+
+ <!-- محتوای تب اصلی -->
+ <div class="tab-content">
+  <div id="main-tab" class="tab-pane active">
+    <div class="dashboard-grid">
+      <!-- ستون ۱: ToDo -->
+      <div class="widget card">
+        <div class="todo-input">
+          <button id="addTodo" class="btn-glass-icon">
+            <i class="fas fa-plus"></i>
+          </button>
+          <input type="text" id="todoInput" placeholder="عنوان تسک" />
+        </div>
+        <ul id="todoList" class="todo-list" dir="ltr"></ul>
+      </div>
+  
+      <!-- ستون ۲: بوکمارک‌ها -->
+      <div class="">
+        <header>
+          <button id="addBookmark" class="btn-glass-icon">
+            <i class="fas fa-plus"></i>
+          </button>
+          <h3>سایت‌های منتخب</h3>
+        </header>
+        <div id="bookmarksContainer" class="bookmarks-grid"></div>
+      </div>
+  
+      <!-- ستون ۳: ابزارها -->
+      <div class="widget-column">
+        <div class="widget card news-widget">
+          <div class="news-header mb10">
+            <h3>📰 تازه‌ترین خبرها</h3>
+            <i class="fas fa-refresh" id="refresh"></i>
+          </div>
+          <div id="newsList">
+            <div class="spinner"></div>
+          </div>
+        </div>
+  
+  
+        <!-- 🔹 وضعیت هوا -->
+        <div class="widget card weather-widget">
+          <div class="news-header mb10">
+            <h3>🌦 وضعیت هوا</h3>
+            <select id="citySelect">
+              <option value="Qazvin">قزوین</option>
+              <option value="Tehran">تهران</option>
+              <option value="Mashhad">مشهد</option>
+              <option value="Isfahan">اصفهان</option>
+              <option value="Tabriz">تبریز</option>
+              <option value="Shiraz">شیراز</option>
+            </select>
+          </div>
+          <div id="weatherInfo"></div>
+        </div>
+  
+        <div class="widget card calendar-widget">
+          <div class="calendar-header">
+            <button id="prevMonth" class="calendar-nav-btn">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+            <h3 id="calendarMonthYear">فروردین 1403</h3>
+            <button id="nextMonth" class="calendar-nav-btn">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+          </div>
+          <div class="calendar-grid">
+            <div class="calendar-weekdays">
+              <div>ش</div>
+              <div>ی</div>
+              <div>د</div>
+              <div>س</div>
+              <div>چ</div>
+              <div>پ</div>
+              <div>ج</div>
+            </div>
+            <div id="calendarDays" class="calendar-days">
+              <!-- Days will be populated by JavaScript -->
+            </div>
+          </div>
+          <div class="current-date-footer">
+            <div id="currentDayName">شنبه</div>
+            <span class="vl"></span>
+            <div id="currentJalaaliDate">۱ فروردین ۱۴۰۳</div>
+          </div>
+        </div>
+  
+        <!-- <div class="widget card backup-controls">
+        </div> -->
+  
+  
+      </div>
+    </div>
+  </div>
+  
+  <!-- محتوای تب استیکی نوت‌ها -->
+  <div id="notes-tab" class="tab-pane">
+    <button id="addStickyNote" class="btn-glass-icon">
+      <i class="fas fa-sticky-note"></i>
+    </button>
+    <div class="sticky-notes-container" id="stickyNotesContainer">
+      <!-- استیکی نوت‌ها به صورت داینامیک اینجا اضافه می‌شوند -->
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+  <!-- Add/Edit Modal -->
+  <div id="bookmarkModal" class="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle">اضافه کردن آدرس</h2>
+      <form id="bookmarkForm">
+        <div class="form-group">
+          <label for="title">عنوان</label>
+          <input type="text" id="title" required />
+        </div>
+        <div class="form-group">
+          <label for="url">آدرس</label>
+          <input type="url" id="url" required placeholder="https://example.com" />
+        </div>
+        <div class="form-actions">
+          <button type="button" id="cancelBtn" class="btn-glass">
+            انصراف
+          </button>
+          <button type="submit" class="btn-glass">ذخیره</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <div class="clock">
+    <div class="clock-img">
+      <img src="images/clock.png" alt="clock" />
+    </div>
+    <div class="hour">
+      <span class="hr" id="hr"></span>
+    </div>
+    <div class="minute">
+      <span class="min" id="min"></span>
+    </div>
+    <div class="second">
+      <span class="sec" id="sec"></span>
+    </div>
+  </div>
+
+  <div id="settingModal" class="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle">تنظیمات</h2>
+      <div class="wrap-setting">
+        <h4>انتخاب پس‌ زمینه</h4>
+        <div id="backgrounds">
+        </div>
+      </div>
+      <div class="wrap-setting">
+        <h4>بکاپ</h4>
+        <div class="backup-button">
+          <button id="exportBackup" class="btn-primary glass-bg">
+            بکاپ گیری
+          </button>
+          <button id="importBackup" class="btn-primary glass-bg">
+            بازگردانی بکاپ
+          </button>
+          <input type="file" id="importFile" accept="application/json" style="display: none" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<!-- ویجت استیکی نوت -->
+<!-- <div id="stickyNotesContainer"></div> -->
+
+
+
+<div id="stickyNoteModal" class="modal">
+  <div class="modal-content">
+    <h2>رنگ یادداشت</h2>
+    <div class="color-picker">
+      <div class="color-option" data-color="#ffeb3b" style="background-color: #ffeb3b;"></div>
+      <div class="color-option" data-color="#e91e63" style="background-color: #e91e63;"></div>
+      <div class="color-option" data-color="#9c27b0" style="background-color: #9c27b0;"></div>
+      <div class="color-option" data-color="#673ab7" style="background-color: #673ab7;"></div>
+      <div class="color-option" data-color="#3f51b5" style="background-color: #3f51b5;"></div>
+      <div class="color-option" data-color="#2196f3" style="background-color: #2196f3;"></div>
+      <div class="color-option" data-color="#00bcd4" style="background-color: #00bcd4;"></div>
+      <div class="color-option" data-color="#009688" style="background-color: #009688;"></div>
+      <div class="color-option" data-color="#4caf50" style="background-color: #4caf50;"></div>
+      <div class="color-option" data-color="#ff9800" style="background-color: #ff9800;"></div>
+      <div class="color-option" data-color="#ff5722" style="background-color: #ff5722;"></div>
+      <div class="color-option" data-color="#795548" style="background-color: #795548;"></div>
+    </div>
+    <div class="form-actions">
+      <button type="button" id="cancelColorBtn" class="btn-glass">انصراف</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- تب‌های پایین صفحه -->
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="main-tab">
+      <i class="fas fa-home"></i>
+      <span>داشبورد</span>
+    </div>
+    <div class="tab" data-tab="notes-tab">
+      <i class="fas fa-sticky-note"></i>
+      <span>یادداشت‌ها</span>
+    </div>
+  </div>
+</div>
+
+
+
+
+  <span class="version">نسخه 1.5.0</span>
+  <span id="settingsBtn">تنظیمات</span>
+
+  <script src="script.js"></script>
+  <script src="js/clock.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,1335 @@
+@import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap");
+
+:root {
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --secondary: #6b7280;
+  --background: #f9fafb;
+  --surface: #ffffff;
+  --text: #111827;
+  --text-light: #6b7280;
+  --border: #e5e7eb;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+*,
+h1,
+h2,
+h3,
+h4,
+h5 {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Vazirmatn", sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+body {
+  font-family: "Vazirmatn", sans-serif;
+  background-color: #2a2a2a;
+  color: var(--text);
+  line-height: 1.6;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: .6rem;
+}
+
+h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.5rem .6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s;
+  font-size: 12px;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: var(--background);
+}
+
+.bookmarks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.5rem;
+  direction: rtl;
+  overflow-y: scroll;
+  padding-left: 5px;
+  max-height: calc(100vh - 328px);
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.bookmark-card {
+  background: rgb(255 255 255 / 16%);
+  border-radius: 0.75rem;
+  /* box-shadow: var(--shadow); */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+}
+
+.bookmark-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.bookmark-content {
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0px;
+  flex-direction: column;
+  max-height: 90px;
+}
+
+.bookmark-content .favicon img {
+  width: 26px;
+  height: 26px;
+  max-height: 35px;
+}
+
+.bookmark-info {
+  margin-top: 6px;
+}
+
+.bookmark-info h3 {
+  font-size: 13px;
+  text-align: center;
+  color: #ffffffbf;
+}
+
+.bookmark-info p {
+  color: var(--text-light);
+  font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.bookmark-actions {
+  display: flex;
+  border-top: 1px solid #b7b7b73d;
+}
+
+.bookmark-actions i {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.edit-btn {
+  color: #ffffff69;
+  border-right: 1px solid var(--border);
+}
+
+.edit-btn:hover {
+  background-color: rgba(79, 70, 229, 0.1);
+}
+
+.delete-btn {
+  color: #ffffff69;
+}
+
+.delete-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(0 0 0 / 66%);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  border-radius: 0.75rem;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow-lg);
+  padding: 2rem;
+  background: rgb(32 32 32);
+  backdrop-filter: blur(2px);
+}
+
+.modal h2 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  text-align: right;
+  color: #afafaf;
+  border-radius: 6px;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  text-align: right;
+  color: #afafaf;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #0000004a;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  background: #00000040;
+  color: #878787;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #979797;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-light);
+}
+
+.empty-state h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+
+/* تقسیم بندی دو ستونی */
+.two-column {
+  display: grid;
+  grid-template-columns: 4fr 8fr;
+  /* نسبت 4 به 8 */
+  gap: 2rem;
+}
+
+/* استایل todo */
+.todo-section {
+  background: rgb(255 255 255 / 16%);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  backdrop-filter: blur(2px);
+}
+
+.todo-input {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-direction: row-reverse;
+  align-items: center;
+}
+
+.todo-input input {
+  flex: 1;
+  padding: 5px 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 13px;
+  text-align: right;
+  direction: rtl;
+  background: #c7c7c721;
+  color: #bbbbbb;
+  outline: none;
+  border: none;
+  height: 36px;
+}
+
+.todo-input input::placeholder {
+  color: #bbbbbb;
+  font-size: 13px;
+}
+
+
+.todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: scroll;
+  max-height: calc(100vh - 368px);
+  padding-right: 5px;
+}
+
+.todo-item {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  flex-direction: row-reverse;
+}
+
+/* .todo-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+} */
+
+.todo-item span {
+  flex: 1;
+  font-weight: 500;
+  cursor: pointer;
+  color: white;
+  text-align: right;
+}
+
+/* رنگ‌بندی وضعیت‌ها */
+.todo-item.pending {
+  border-right: 3px solid #f76500;
+}
+
+.todo-item.inprogress {
+  border-right: 3px solid #0061ff;
+}
+
+.todo-item.done {
+  border-right: 3px solid #3ac700;
+  /* سبز */
+  color: var(--text-light);
+  text-decoration: line-through;
+}
+
+.todo-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-direction: row-reverse;
+  align-items: center;
+}
+
+.todo-actions select {
+  border-radius: 6px;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  color: #dddddd;
+  color: #dddddd;
+  outline: none;
+  width: 72px;
+  font-size: 10px;
+  height: 24px;
+  padding: 0 4px;
+}
+
+.todo-actions button {
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+.backup-controls {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: start;
+  align-items: center;
+}
+
+/* ====== Glass Scrollbar (Global) ====== */
+:root {
+  --sb-bg: rgba(255, 255, 255, 0.06);
+  --sb-border: rgba(255, 255, 255, 0.22);
+  --sb-thumb: rgba(255, 255, 255, 0.35);
+  --sb-thumb-hover: rgba(255, 255, 255, 0.5);
+  --sb-thumb-active: rgba(255, 255, 255, 0.65);
+}
+
+/* Firefox */
+*,
+.glass-scroll {
+  scrollbar-width: thin;
+  /* باریک */
+  scrollbar-color: var(--sb-thumb) transparent;
+  /* رنگ شست و پس‌زمینه */
+}
+
+/* WebKit (Chrome/Edge/Safari) */
+*::-webkit-scrollbar,
+.glass-scroll::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+*::-webkit-scrollbar-track,
+.glass-scroll::-webkit-scrollbar-track {
+  background: linear-gradient(180deg, var(--sb-bg), rgba(255, 255, 255, 0.03));
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--sb-border),
+    inset 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+*::-webkit-scrollbar-thumb,
+.glass-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.45),
+      rgba(255, 255, 255, 0.2));
+  border: 2px solid transparent;
+  /* برای ایجاد حاشیه شیشه‌ای */
+  background-clip: padding-box;
+  /* افکت شیشه‌ای */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+*::-webkit-scrollbar-thumb:hover,
+.glass-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg,
+      var(--sb-thumb-hover),
+      rgba(255, 255, 255, 0.28));
+}
+
+*::-webkit-scrollbar-thumb:active,
+.glass-scroll::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg,
+      var(--sb-thumb-active),
+      rgba(255, 255, 255, 0.36));
+}
+
+/* گردی گوشه‌ها برای کانتینرهای اسکرولی (اختیاری ولی قشنگ‌تر می‌شه) */
+.glass-scroll {
+  scrollbar-gutter: stable both-edges;
+  /* جلوگیری از پریدن محتوا */
+  border-radius: 12px;
+  overflow: auto;
+  backdrop-filter: blur(6px);
+  /* برای حس شیشه‌ای خود کانتینر */
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.todo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.mb10 {
+  margin-bottom: 10px;
+}
+
+.current-date {
+  direction: rtl;
+  font-weight: 500;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 1%);
+  backdrop-filter: blur(5px);
+  color: #ffffff;
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  cursor: pointer;
+  width: 173px;
+}
+
+.vl {
+  background: #ffffff2b;
+  width: 2px;
+  height: 20px;
+  border-radius: 50px;
+}
+
+.glass-bg {
+  background: rgb(255 255 255 / 16%);
+}
+
+.tools-widget {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+}
+
+.btn-glass-icon {
+  width: 35px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgb(255 255 255 / 16%);
+  color: #ffffff91;
+  backdrop-filter: blur(2px);
+  border: 0;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+
+.btn-glass-icon:hover {
+  background: rgba(255, 255, 255, 0.164);
+}
+
+.btn-glass {
+  width: fit-content;
+  height: 38px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgb(112 112 112 / 16%);
+  color: #ffffff91;
+  border: 0;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s;
+  padding: 0px 15px;
+}
+
+.btn-glass:hover {
+  background: rgba(112, 112, 112, 0.253);
+}
+
+.alarm-widget {
+  background: rgb(255 255 255 / 16%);
+  backdrop-filter: blur(5px);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 10px;
+  color: #fff;
+  text-align: right;
+}
+
+#alarmList {
+  list-style: none;
+  padding: 0;
+}
+
+#alarmList li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 6px 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+#alarmList button {
+  margin-left: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+.wrap-alarm {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.favicon {
+  background: white;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 22px;
+}
+
+.version {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* background: rgb(255 255 255 / 16%);
+  backdrop-filter: blur(5px); */
+  padding: 6px 10px;
+  border-radius: 6px;
+  bottom: 14px;
+  right: 50%;
+  transform: translateX(50px);
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+#settingsBtn {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgb(255 255 255 / 16%);
+  backdrop-filter: blur(5px);
+  padding: 6px 10px;
+  border-radius: 6px;
+  bottom: 14px;
+  right: 14px;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.news-widget {
+  width: 100%;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 10px;
+}
+
+#newsList {
+  overflow-y: scroll;
+  max-height: 169px;
+  padding-left: 5px;
+}
+
+.news-item {
+  margin: 4px 0;
+  line-height: 1.7;
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.281);
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.news-item a {
+  text-decoration: none;
+  color: #dbdbdb;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  align-items: start;
+  gap: 20px;
+  /* padding: 20px; */
+}
+
+
+.widget {
+  direction: rtl;
+  margin-bottom: 10px;
+  text-align: right;
+  color: #fff;
+}
+
+.card {
+  background: rgb(255 255 255 / 16%);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); */
+}
+
+.news-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fa-refresh {
+  cursor: pointer;
+}
+
+.refresh-news {
+  cursor: pointer;
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform-origin: center center;
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform-origin: center center;
+    transform: rotate(360deg);
+  }
+}
+
+
+
+.weather-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.location-info h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.description {
+  margin: 0.5rem 0 0 0;
+  opacity: 0.9;
+  text-transform: capitalize;
+}
+
+.temperature-main {
+  text-align: center;
+}
+
+.temp-current {
+  font-size: 4rem;
+  font-weight: bold;
+  display: flex;
+  gap: 6px;
+}
+
+.temp-value {
+  font-size: 3rem;
+}
+
+.temp-unit {
+  font-size: 25px;
+  vertical-align: top;
+  display: inline-block;
+}
+
+.weather-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.detail-item {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 10px;
+}
+
+
+/* استایل سلکت شهر */
+#citySelect {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 2px 12px;
+  color: white;
+  font-size: 13px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+#citySelect:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+option {
+  color: #ffffff;
+  background: #525252;
+  font-size: 10px;
+}
+
+/* کارت اصلی آب و هوا */
+.weather-card {
+  color: white;
+  text-align: center;
+  width: 100%;
+}
+
+
+/* اطلاعات مکان */
+.location h2 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+}
+
+.description {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.8;
+  text-transform: capitalize;
+  font-weight: 300;
+}
+
+/* اطلاعات اصلی */
+.main-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  margin: 30px 0;
+}
+
+.icon img {
+  width: 80px;
+  height: 80px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.temperature {
+  text-align: left;
+}
+
+.temp {
+  font-size: 64px;
+  font-weight: 200;
+  line-height: 1;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.feels {
+  font-size: 14px;
+  opacity: 0.7;
+  font-weight: 300;
+}
+
+/* جزئیات */
+.details {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin: 30px 0;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-item .icon {
+  font-size: 20px;
+  opacity: 0.8;
+}
+
+.detail-item .value {
+  font-size: 16px;
+  font-weight: 300;
+}
+
+/* زمان به‌روزرسانی */
+.update-time {
+  font-size: 12px;
+  opacity: 0.6;
+  font-weight: 300;
+}
+
+/* حالت لودینگ */
+.loading {
+  text-align: center;
+  padding: 40px;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 15px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.8;
+  font-weight: 300;
+}
+
+/* حالت خطا */
+.error {
+  background: rgba(255, 107, 107, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  border-radius: 16px;
+  padding: 30px;
+  text-align: center;
+  color: white;
+}
+
+.error p {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.error button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  font-weight: 300;
+}
+
+.error button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* انیمیشن fade-in */
+.weather-card {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+body {
+  transition: background 0.3s ease;
+}
+
+
+#backgrounds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.bg-thumb {
+  width: 100px;
+  height: 60px;
+  cursor: pointer;
+  border: 2px solid #ffffff75;
+  background-size: cover;
+  background-position: center;
+  border-radius: 6px;
+}
+
+.bg-thumb.selected {
+  border-color: #4f46e5;
+}
+
+.wrap-setting {
+  color: #c7c7c7;
+  text-align: right;
+  direction: rtl;
+  border-bottom: 1px solid #ffffff1a;
+  padding: 10px 0;
+}
+
+.backup-button {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 10px;
+}
+
+.wrap-setting h4 {
+  margin-bottom: 10px;
+}
+
+option {
+  color: #ffffff;
+  background: #525252;
+}
+
+
+/* استایل استیکی نوت */
+#addStickyNote {
+  position: fixed;
+  right: 2px;
+  top: 4px;
+  padding: 6px 10px;
+  color: white;
+  height: 33px;
+}
+
+.sticky-note {
+  position: fixed;
+  width: 300px;
+  max-width: 300px;
+  min-width: 300px;
+  max-height: 56px;
+  min-height: 56px;
+  padding: 5px;
+  background-color: #ffeb3b;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  cursor: move;
+  z-index: 1000;
+  resize: both;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.sticky-note-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 5px;
+  /* padding-bottom: 5px; */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.sticky-note-content {
+  height: 16px;
+  min-height: 16px;
+  outline: none;
+  border: none;
+  background: transparent;
+  resize: none;
+  width: 100%;
+  font-family: "Vazirmatn", sans-serif;
+  font-size: 12px;
+  color: #333;
+  overflow: hidden;
+}
+
+.sticky-note-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.sticky-note-color-btn,
+.sticky-note-delete-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.sticky-note-color-btn:hover,
+.sticky-note-delete-btn:hover {
+  opacity: 1;
+}
+
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 15px 0;
+  justify-content: center;
+}
+
+.color-option {
+  flex: 0 0 calc(15% - 10px); /* چهار تا در هر ردیف */
+  max-width: calc(15% - 10px);
+  aspect-ratio: 1; /* مربع کامل */
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s;
+  border: 2px solid transparent;
+}
+
+.color-option:hover {
+  transform: scale(1.1);
+}
+
+.color-option.selected {
+  border-color: #fff;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+
+/* استایل‌های تب‌ها */
+.tab-container {
+  position: fixed;
+  bottom: 60px;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  right: 50%;
+  transform: translateX(50%);
+}
+
+.tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 5px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.tab-content {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: calc(100vh - 80px);
+  transition: transform 0.4s ease;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.tab-pane {
+  display: none;
+}
+
+.tab-pane.active {
+  display: block;
+  transform: translateX(0);
+}
+
+/* استایل‌های تقویم شمسی */
+.calendar-widget {
+  direction: rtl;
+  text-align: center;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 0 5px;
+}
+
+.calendar-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.calendar-nav-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #ffffff;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.calendar-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.calendar-grid {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 12px;
+  /* backdrop-filter: blur(10px); */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.calendar-weekdays div {
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  padding: 6px 2px;
+  text-align: center;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-day {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #ffffff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.calendar-day:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05);
+}
+
+
+.calendar-day.today {
+  background: #00ffb340;
+  color: white;
+  font-weight: 600;
+  /* box-shadow: 0 2px 8px rgb(19 52 43); */
+}
+
+.calendar-day.empty {
+  background: transparent;
+  cursor: default;
+}
+
+.calendar-day.empty:hover {
+  background: transparent;
+  transform: none;
+}
+
+.calendar-day.friday {
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.calendar-day.friday:hover {
+  background: rgba(255, 107, 107, 0.2);
+}
+
+.calendar-day.friday.today {
+  background: #ff6b6b;
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
+.current-date-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 15px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  /* backdrop-filter: blur(10px); */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#currentDayName {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+#currentJalaaliDate {
+  font-size: 12px;
+  color: #e0e0e0;
+}
+
+.current-date-footer .vl {
+  background: #ffffff2b;
+  width: 1px;
+  height: 16px;
+  border-radius: 50px;
+}
