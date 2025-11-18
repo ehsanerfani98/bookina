@@ -1,4 +1,4 @@
-# 📚 Bookina - Personal Dashboard Extension
+# 📚 بوکینا - اکستنشن داشبورد شخصی برای کروم ، ادج و ...
 
 ![Bookina Dashboard](https://img.shields.io/badge/Bookina-Personal%20Dashboard-blue)
 ![Version](https://img.shields.io/badge/version-1.5.0-green)
