@@ -1,11 +1,11 @@
 # 📚 Bookina - Personal Dashboard Extension
 
-یک داشبورد شخصی و صفحه جدید (New Tab) زیبا و کاربردی برای مرورگر کروم که امکانات مختلفی را در یک مکان جمع‌آوری کرده است.
-
 ![Bookina Dashboard](https://img.shields.io/badge/Bookina-Personal%20Dashboard-blue)
 ![Version](https://img.shields.io/badge/version-1.5.0-green)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
+
+یک داشبورد شخصی و صفحه جدید (New Tab) زیبا و کاربردی برای مرورگر کروم که امکانات مختلفی را در یک مکان جمع‌آوری کرده است.
 
 
 ![Bookina Dashboard](./screenshot.png)
