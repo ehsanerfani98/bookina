@@ -177,7 +177,7 @@ bookina/
 ⭐ اگر این پروژه را دوست دارید، لطفاً آن را در GitHub ستاره دهید!
 
 
-# 📚 Bookina - Personal Dashboard Extension
+# 📚 Bookina - Personal Dashboard Extension / Chrome and Edge
 
 A beautiful and functional personal dashboard and new tab page for Chrome browser that brings various features together in one place.
 
