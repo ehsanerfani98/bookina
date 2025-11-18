@@ -1,356 +1,303 @@
-# 📚 بوکینا - اکستنشن داشبورد شخصی برای کروم ، ادج و ...
+# Bookina - بوکینا
 
-![Bookina Dashboard](https://img.shields.io/badge/Bookina-Personal%20Dashboard-blue)
-![Version](https://img.shields.io/badge/version-1.5.0-green)
-![License](https://img.shields.io/badge/license-MIT-lightgrey)
+<div dir="rtl">
 
+# بوکینا - داشبورد شخصی فارسی
 
-یک داشبورد شخصی و صفحه جدید (New Tab) زیبا و کاربردی برای مرورگر کروم که امکانات مختلفی را در یک مکان جمع‌آوری کرده است.
+بوکینا یک برنامه داشبورد شخصی مدرن و بهینه‌شده برای تب جدید مرورگر کروم است که با طراحی شیشه‌ای (Glassmorphism) و رابط کاربری فارسی توسعه یافته است.
 
-
-![Bookina Dashboard](./screenshot.png)
-
+![بوکینا](screenshot.png)
 
 ## ✨ ویژگی‌ها
 
+### 📅 تقویم فارسی
+- نمایش تقویم جلالی (شمسی) با قابلیت ناوبری ماه‌ها
+- هایلایت کردن تاریخ امروز
+- نمایش نام روزهای هفته به فارسی
+- اعداد فارسی در تمام بخش‌ها
+
+### 📝 مدیریت وظایف (Todo)
+- افزودن و حذف تسک‌ها
+- علامت‌گذاری تسک‌های انجام شده
+- رابط کاربری ساده و سریع
+
 ### 🔖 مدیریت بوکمارک‌ها
-- افزودن، ویرایش و حذف بوکمارک‌ها
-- نمایش favicon خودکار
+- افزودن، ویرایش و حذف بوکمارک
+- نمایش favicon سایت‌ها
 - قابلیت Drag & Drop برای مرتب‌سازی
-- ذخیره‌سازی در حافظه مرورگر
+- ذخیره‌سازی خودکار
 
-### ✅ لیست کارها (To-Do)
-- ایجاد تسک‌های جدید
-- مدیریت وضعیت‌ها (انجام نشده، در حال انجام، انجام شده)
-- رنگ‌بندی وضعیت‌ها
-- ذخیره‌سازی محلی
-
-### 📅 تقویم شمسی
-- نمایش تقویم کامل شمسی
-- ناوبری بین ماه‌های قبل و بعد
-- هایلایت تاریخ امروز
-- رنگ‌آمیزی جمعه‌ها به عنوان روز تعطیل
-- محاسبات دقیق سال‌های کبیسه
-
-### ⏰ آلارم و یادآوری
-- تنظیم آلارم‌های متعدد
-- پخش صدای هشدار
-- اعلان‌های مرورگر
-- ویرایش و حذف آلارم‌ها
-
-### 🌤️ وضعیت آب و هوا
+### 🌦 وضعیت آب و هوا
 - نمایش وضعیت آب و هوا برای شهرهای مختلف ایران
-- اطلاعات کامل شامل دما، رطوبت، سرعت باد
-- انتخاب شهر از لیست
-- به‌روزرسانی خودکار
+- قابلیت انتخاب شهر (قزوین، تهران، مشهد، اصفهان، تبریز، شیراز)
+- اطلاعات دما و شرایط جوی
 
-### 📰 اخبار فوری
-- دریافت آخرین اخبار از منابع معتبر
-- نمایش تیتر اخبار
-- لینک مستقیم به خبر
-- قابلیت به‌روزرسانی دستی
+### 📰 اخبار
+- نمایش آخرین اخبار
+- قابلیت رفرش اطلاعات
+- طراحی کارت‌های خبری
 
-### 📝 استیکی نوت
-- ایجاد یادداشت‌های چسبنده
+### 📌 یادداشت‌های چسبان (Sticky Notes)
+- ایجاد یادداشت‌های رنگی
 - قابلیت Drag & Drop
-- تغییر رنگ یادداشت‌ها
-- ذخیره‌سازی موقعیت و محتوا
+- ذخیره‌سازی خودکار
+- انتخاب از بین ۱۲ رنگ مختلف
 
-### 🎨 تنظیمات ظاهری
-- انتخاب از بین ۸ تصویر پس‌زمینه
-- ذخیره‌سازی تنظیمات
-- رابط کاربری Glassmorphism
-- پشتیبانی از RTL و فونت فارسی
+### ⚙️ تنظیمات
+- انتخاب تصویر پس‌زمینه از بین ۸ گزینه
+- سیستم پشتیبان‌گیری و بازیابی
+- ذخیره‌سازی تمام تنظیمات
+
+### 🕐 ساعت آنالوگ
+- نمایش ساعت آنالوگ زیبا
+- طراحی شیشه‌ای هماهنگ با کل برنامه
 
 ## 🚀 نصب و راه‌اندازی
 
-### روش ۱: نصب از Chrome Web Store
-(به زودی در دسترس خواهد بود)
+### نصب به عنوان افزونه کروم
 
-### روش ۲: نصب دستی
+1. فایل پروژه را دانلود کنید
+2. مرورگر کروم را باز کنید و به آدرس `chrome://extensions/` بروید
+3. گزینه "Developer mode" را در右上角 فعال کنید
+4. روی "Load unpacked" کلیک کنید و پوشه پروژه را انتخاب کنید
+5. افزونه بوکینا نصب شده و در تب جدید نمایش داده می‌شود
 
-1. دانلود یا کلون پروژه:
-```bash
-git clone https://github.com/your-username/bookina.git
+### اجرا به عنوان برنامه وب
+
+1. فایل `index.html` را در مرورگر باز کنید
+2. برنامه به صورت مستقیم اجرا می‌شود
+
+## 🏗 معماری فنی
+
+### ساختار ماژولار
+```
+src/
+├── main.js              # نقطه ورود اصلی برنامه
+├── modules/
+│   ├── bookmarks.js     # مدیریت بوکمارک‌ها
+│   ├── todos.js         # مدیریت تسک‌ها
+│   ├── calendar.js      # تقویم فارسی
+│   ├── weather.js       # وضعیت آب و هوا
+│   ├── news.js          # نمایش اخبار
+│   ├── stickyNotes.js   # یادداشت‌های چسبان
+│   └── settings.js      # تنظیمات
+└── utils/
+    ├── storage.js       # مدیریت ذخیره‌سازی
+    ├── date.js          # ابزارهای تاریخ فارسی
+    └── dom.js           # ابزارهای DOM
 ```
 
-2. باز کردن مرورگر کروم و رفتن به آدرس:
-```
-chrome://extensions/
-```
-
-3. فعال کردن حالت Developer Mode (در گوشه سمت راست بالا)
-
-4. کلیک روی "Load unpacked" و انتخاب پوشه پروژه
-
-5. اکنون افزونه نصب شده و می‌توانید از آن استفاده کنید
-
-## 🏗️ ساختار پروژه
-
-```
-bookina/
-├── index.html              # صفحه اصلی
-├── manifest.json           # فایل پیکربندی افزونه
-├── styles.css              # استایل‌های اصلی
-├── script.js               # منطق اصلی برنامه
-├── alarm.mp3               # صدای آلارم
-├── css/
-│   └── clock.css          # استایل‌های ساعت (اگر موجود باشد)
-├── js/
-│   ├── clock.js           # منطق ساعت (اگر موجود باشد)
-│   ├── jquery-3.6.0.slim.min.js
-│   └── jquery-ui.min.js
-├── icons/
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
-├── images/
-│   ├── bg1.jpg تا bg8.jpg # تصاویر پس‌زمینه
-│   └── clock.png
-└── README.md
-```
-
-## 🛠️ فناوری‌های استفاده شده
-
-- **HTML5** - ساختار صفحات
-- **CSS3** - استایل‌دهی با Glassmorphism
-- **JavaScript (ES6+)** - منطق برنامه
+### تکنولوژی‌ها
+- **HTML5** - ساختار صفحه
+- **CSS3** - استایل‌دهی با طراحی Glassmorphism
+- **JavaScript ES6+** - منطق برنامه
 - **Chrome Extension API** - یکپارچه‌سازی با مرورگر
-- **Local Storage** - ذخیره‌سازی داده‌ها
-- **Fetch API** - دریافت داده از APIهای خارجی
+- **Modular JavaScript** - معماری ماژولار
 
-## 🔧 APIهای استفاده شده
+### API‌های استفاده شده
+- Chrome Storage API برای ذخیره‌سازی داده‌ها
+- Weather API برای اطلاعات آب و هوا
+- News API برای دریافت اخبار
 
-### آب و هوا
-- **سرویس:** OpenWeatherMap
-- **شهرهای پشتیبانی شده:** تهران، مشهد، اصفهان، شیراز، تبریز، کرج، قم، اهواز
+## 🔧 توسعه
 
-### اخبار
-- **منبع:** Zoomit.ir
-- **فرمت:** RSS Feed
-- **تعداد اخبار:** ۱۰ خبر آخر
+### پیش‌نیازها
+- مرورگر کروم
+- ویرایشگر کد (VS Code پیشنهاد می‌شود)
 
-## 📋 امکانات آینده
+### ساختار توسعه
+```javascript
+// نمونه کد ماژول
+export class ModuleManager {
+  constructor() {
+    // مقداردهی اولیه
+  }
 
-- [ ] پشتیبانی از تم‌های تاریک و روشن
-- [ ] همگام‌سازی با ابر (Cloud Sync)
-- [ ] ویجت ساعت و تاریخ
-- [ ] تبدیل واحدهای مختلف
-- [ ] یادآوری رویدادها
-- [ ] پشتیبانی از زبان‌های دیگر
-- [ ] حالت فشرده (Compact Mode)
+  async initialize() {
+    // راه‌اندازی ماژول
+  }
 
-## 🐛 گزارش مشکل
+  // متدهای عمومی
+}
+```
 
-اگر با مشکلی مواجه شدید، لطفاً از طریق بخش Issues در GitHub گزارش دهید.
+### افزودن ماژول جدید
+1. فایل جدید در پوشه `src/modules/` ایجاد کنید
+2. کلاس ماژول را با متد `initialize` بسازید
+3. ماژول را در `src/main.js` import کنید
+4. ماژول را در تابع `initializeModules` اضافه کنید
+
+## 📦 فایل‌های مهم
+- `index.html` - ساختار اصلی صفحه
+- `manifest.json` - تنظیمات افزونه کروم
+- `src/main.js` - نقطه ورود برنامه
+- `styles.css` - استایل‌های اصلی
+- `src/utils/` - ابزارهای کمکی
 
 ## 🤝 مشارکت
-
-مشارکت‌های شما همیشه مورد استقبال است! لطفاً:
-
+برای مشارکت در توسعه بوکینا:
 1. پروژه را Fork کنید
-2. Branch جدید ایجاد کنید (`git checkout -b feature/AmazingFeature`)
-3. تغییرات را Commit کنید (`git commit -m 'Add some AmazingFeature'`)
-4. به Branch اصلی Push کنید (`git push origin feature/AmazingFeature`)
-5. یک Pull Request ایجاد کنید
+2. Branch جدید ایجاد کنید (`git checkout -b feature/amazing-feature`)
+3. تغییرات را Commit کنید (`git commit -m 'Add amazing feature'`)
+4. به Branch اصلی Push کنید (`git push origin feature/amazing-feature`)
+5. Pull Request ایجاد کنید
 
-## 📄 مجوز
+## 📄 لایسنس
+این پروژه تحت لایسنس MIT منتشر شده است.
 
-این پروژه تحت مجوز MIT منتشر شده است - برای جزئیات بیشتر فایل [LICENSE](LICENSE) را مشاهده کنید.
-
-## 👨‍💻 توسعه‌دهنده
-
-- **نام:** Bookina Team
-- **ایمیل:** contact@bookina.com
-- **وب‌سایت:** https://bookina.com
-
-## 🙏 تشکر و قدردانی
-
-- از جامعه متن‌باز برای ابزارها و کتابخانه‌های ارزشمند
-- از OpenWeatherMap برای ارائه API آب و هوای رایگان
-- از Zoomit.ir برای ارائه فید RSS اخبار
+## 📞 پشتیبانی
+برای گزارش باگ یا پیشنهاد ویژگی جدید، لطفاً از بخش Issues در گیت‌هاب استفاده کنید.
 
 ---
 
-**توجه:** این پروژه یک افزونه شخصی است و برای استفاده تجاری نیاز به مجوز دارد.
+</div>
 
-⭐ اگر این پروژه را دوست دارید، لطفاً آن را در GitHub ستاره دهید!
+<div dir="ltr">
 
+# Bookina - Persian Personal Dashboard
 
-# 📚 Bookina - Personal Dashboard Extension / Chrome and Edge
+Bookina is a modern, optimized personal dashboard for Chrome's new tab, developed with Glassmorphism design and Persian user interface.
 
-A beautiful and functional personal dashboard and new tab page for Chrome browser that brings various features together in one place.
-
-![Bookina Dashboard](https://img.shields.io/badge/Bookina-Personal%20Dashboard-blue)
-![Version](https://img.shields.io/badge/version-1.5.0-green)
-![License](https://img.shields.io/badge/license-MIT-lightgrey)
+![Bookina](screenshot.png)
 
 ## ✨ Features
 
+### 📅 Persian Calendar
+- Display of Jalali (Solar) calendar with month navigation
+- Today's date highlighting
+- Persian weekday names
+- Persian numerals throughout
+
+### 📝 Task Management (Todo)
+- Add and remove tasks
+- Mark completed tasks
+- Simple and fast user interface
+
 ### 🔖 Bookmark Management
 - Add, edit, and delete bookmarks
-- Automatic favicon display
-- Drag & Drop for organization
-- Storage in browser memory
+- Website favicon display
+- Drag & Drop functionality for sorting
+- Automatic saving
 
-### ✅ To-Do List
-- Create new tasks
-- Manage statuses (Not Started, In Progress, Completed)
-- Color-coded statuses
-- Local storage
+### 🌦 Weather Status
+- Weather information for various Iranian cities
+- City selection (Qazvin, Tehran, Mashhad, Isfahan, Tabriz, Shiraz)
+- Temperature and weather conditions
 
-### 📅 Persian Calendar
-- Complete Persian calendar display
-- Navigation between previous and next months
-- Today's date highlighting
-- Fridays colored as holidays
-- Accurate leap year calculations
+### 📰 News
+- Display of latest news
+- Refresh capability
+- News card design
 
-### ⏰ Alarm & Reminders
-- Set multiple alarms
-- Play alarm sound
-- Browser notifications
-- Edit and delete alarms
-
-### 🌤️ Weather Status
-- Display weather for different cities in Iran
-- Complete information including temperature, humidity, wind speed
-- City selection from list
-- Automatic updates
-
-### 📰 Breaking News
-- Get latest news from reliable sources
-- Display news headlines
-- Direct links to news
-- Manual refresh capability
-
-### 📝 Sticky Notes
-- Create sticky notes
+### 📌 Sticky Notes
+- Create colored notes
 - Drag & Drop functionality
-- Note color customization
-- Position and content storage
+- Automatic saving
+- Choice of 12 different colors
 
-### 🎨 Appearance Settings
-- Choose from 8 background images
-- Settings storage
-- Glassmorphism UI
-- RTL and Persian font support
+### ⚙️ Settings
+- Background image selection from 8 options
+- Backup and restore system
+- Save all settings
+
+### 🕐 Analog Clock
+- Beautiful analog clock display
+- Glass design consistent with the entire application
 
 ## 🚀 Installation & Setup
 
-### Method 1: Install from Chrome Web Store
-(Coming soon)
+### Install as Chrome Extension
 
-### Method 2: Manual Installation
-
-1. Download or clone the project:
-```bash
-git clone https://github.com/your-username/bookina.git
-```
-
-2. Open Chrome browser and go to:
-```
-chrome://extensions/
-```
-
-3. Enable Developer Mode (top right corner)
-
+1. Download the project files
+2. Open Chrome browser and go to `chrome://extensions/`
+3. Enable "Developer mode" in the top right
 4. Click "Load unpacked" and select the project folder
+5. Bookina extension is installed and will appear in new tabs
 
-5. The extension is now installed and ready to use
+### Run as Web Application
 
-## 🏗️ Project Structure
+1. Open `index.html` in your browser
+2. The application will run directly
 
+## 🏗 Technical Architecture
+
+### Modular Structure
 ```
-bookina/
-├── index.html              # Main page
-├── manifest.json           # Extension configuration file
-├── styles.css              # Main styles
-├── script.js               # Main application logic
-├── alarm.mp3               # Alarm sound
-├── css/
-│   └── clock.css          # Clock styles (if exists)
-├── js/
-│   ├── clock.js           # Clock logic (if exists)
-│   ├── jquery-3.6.0.slim.min.js
-│   └── jquery-ui.min.js
-├── icons/
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
-├── images/
-│   ├── bg1.jpg to bg8.jpg # Background images
-│   └── clock.png
-└── README.md
+src/
+├── main.js              # Main application entry point
+├── modules/
+│   ├── bookmarks.js     # Bookmark management
+│   ├── todos.js         # Task management
+│   ├── calendar.js      # Persian calendar
+│   ├── weather.js       # Weather status
+│   ├── news.js          # News display
+│   ├── stickyNotes.js   # Sticky notes
+│   └── settings.js      # Settings
+└── utils/
+    ├── storage.js       # Storage management
+    ├── date.js          # Persian date utilities
+    └── dom.js           # DOM utilities
 ```
 
-## 🛠️ Technologies Used
-
+### Technologies
 - **HTML5** - Page structure
-- **CSS3** - Styling with Glassmorphism
-- **JavaScript (ES6+)** - Application logic
+- **CSS3** - Styling with Glassmorphism design
+- **JavaScript ES6+** - Application logic
 - **Chrome Extension API** - Browser integration
-- **Local Storage** - Data storage
-- **Fetch API** - External API data retrieval
+- **Modular JavaScript** - Modular architecture
 
-## 🔧 APIs Used
+### APIs Used
+- Chrome Storage API for data storage
+- Weather API for weather information
+- News API for news retrieval
 
-### Weather
-- **Service:** OpenWeatherMap
-- **Supported Cities:** Tehran, Mashhad, Isfahan, Shiraz, Tabriz, Karaj, Qom, Ahvaz
+## 🔧 Development
 
-### News
-- **Source:** Zoomit.ir
-- **Format:** RSS Feed
-- **News Count:** Latest 10 news items
+### Prerequisites
+- Chrome browser
+- Code editor (VS Code recommended)
 
-## 📋 Future Features
+### Development Structure
+```javascript
+// Module code sample
+export class ModuleManager {
+  constructor() {
+    // Initialization
+  }
 
-- [ ] Dark and light theme support
-- [ ] Cloud synchronization
-- [ ] Clock and date widget
-- [ ] Unit conversion
-- [ ] Event reminders
-- [ ] Multi-language support
-- [ ] Compact Mode
+  async initialize() {
+    // Module setup
+  }
 
-## 🐛 Bug Reporting
+  // Public methods
+}
+```
 
-If you encounter any issues, please report them via the Issues section on GitHub.
+### Adding New Module
+1. Create new file in `src/modules/` folder
+2. Build module class with `initialize` method
+3. Import module in `src/main.js`
+4. Add module in `initializeModules` function
+
+## 📦 Important Files
+- `index.html` - Main page structure
+- `manifest.json` - Chrome extension settings
+- `src/main.js` - Application entry point
+- `styles.css` - Main styles
+- `src/utils/` - Utility tools
 
 ## 🤝 Contribution
-
-Your contributions are always welcome! Please:
-
+To contribute to Bookina development:
 1. Fork the project
-2. Create a new branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Create a Pull Request
+2. Create new branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Create Pull Request
 
 ## 📄 License
+This project is released under MIT License.
 
-This project is released under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 📞 Support
+For bug reports or feature suggestions, please use the Issues section on GitHub.
 
-## 👨‍💻 Developer
-
-- **Name:** Bookina Team
-- **Email:** contact@bookina.com
-- **Website:** https://bookina.com
-
-## 🙏 Acknowledgments
-
-- Open source community for valuable tools and libraries
-- OpenWeatherMap for providing free weather API
-- Zoomit.ir for providing RSS news feed
-
----
-
-**Note:** This project is a personal extension and requires a license for commercial use.
-
-⭐ If you like this project, please give it a star on GitHub!
-
----
-**فارسی | English**
-
-این فایل README به دو زبان فارسی و انگلیسی ارائه شده است.
+</div>

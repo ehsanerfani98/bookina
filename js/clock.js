@@ -1,26 +1,35 @@
-const hr = document.getElementById("hr");
-const min = document.getElementById("min");
-const sec = document.getElementById("sec");
+/**
+ * Analog Clock Functionality
+ * Handles the analog clock display
+ */
 
-rotation = (target, val) => {
-  target.style.transform = `rotate(${val}deg)`;
-};
+document.addEventListener("DOMContentLoaded", function() {
+    const hr = document.getElementById('hr');
+    const mn = document.getElementById('min');
+    const sc = document.getElementById('sec');
 
-clock = () => {
-  let date = new Date();
-  let hh = (date.getHours() % 12) + date.getMinutes() / 59;
-  let mm = date.getMinutes();
-  let ss = date.getSeconds();
+    function updateClock() {
+        let day = new Date();
+        let hh = day.getHours() * 30;
+        let mm = day.getMinutes() * 6;
+        let ss = day.getSeconds() * 6;
 
-  hh *= 30;
-  mm *= 6;
-  ss *= 6;
+        hr.style.transform = `rotateZ(${hh + (mm / 12)}deg)`;
+        mn.style.transform = `rotateZ(${mm}deg)`;
+        sc.style.transform = `rotateZ(${ss}deg)`;
 
-  rotation(hr, hh);
-  rotation(min, mm);
-  rotation(sec, ss);
+        // Update digital time if needed
+        const digitalTime = document.getElementById('digitalTime');
+        if (digitalTime) {
+            const hours = String(day.getHours()).padStart(2, '0');
+            const minutes = String(day.getMinutes()).padStart(2, '0');
+            digitalTime.textContent = `${hours}:${minutes}`;
+        }
+    }
 
-  setTimeout(clock, 500);
-};
-
-window.onload = clock();
+    // Initial update
+    updateClock();
+    
+    // Update every second
+    setInterval(updateClock, 1000);
+});

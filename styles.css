@@ -321,7 +321,7 @@ h3 {
 }
 
 .todo-item {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgb(255 255 255 / 5%);
   border-radius: 6px;
   padding: 10px;
   display: flex;
@@ -638,24 +638,24 @@ h3 {
 
 .news-widget {
   width: 100%;
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 10px;
+  border-radius: 8px;
+  padding: 6px;
+  margin-bottom: 6px;
 }
 
 #newsList {
   overflow-y: scroll;
-  max-height: 169px;
-  padding-left: 5px;
+  max-height: 120px;
+  padding-left: 3px;
 }
 
 .news-item {
-  margin: 4px 0;
-  line-height: 1.7;
-  font-size: 12px;
+  margin: 2px 0;
+  line-height: 1.4;
+  font-size: 11px;
   background: rgba(0, 0, 0, 0.281);
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: 4px 6px;
+  border-radius: 4px;
 }
 
 .news-item a {
@@ -667,8 +667,9 @@ h3 {
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
   align-items: start;
-  gap: 20px;
-  /* padding: 20px; */
+  gap: 12px;
+  height: calc(100vh - 80px);
+  overflow: hidden;
 }
 
 
@@ -682,8 +683,8 @@ h3 {
 .card {
   background: rgb(255 255 255 / 16%);
   backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 15px;
+  border-radius: 8px;
+  padding: 8px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); */
 }
@@ -1272,7 +1273,7 @@ option {
 
 
 .calendar-day.today {
-  background: #00ffb340;
+  background: #ffffff46;
   color: white;
   font-weight: 600;
   /* box-shadow: 0 2px 8px rgb(19 52 43); */
