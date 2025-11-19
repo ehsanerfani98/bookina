@@ -121,10 +121,5 @@ class BookinaApp {
   }
 }
 
-// Initialize the application when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  window.bookinaApp = new BookinaApp();
-});
-
 // Export for testing or external usage
 export default BookinaApp;

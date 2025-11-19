@@ -47,23 +47,30 @@ export class StorageManager {
    * @returns {Promise<void>}
    */
   async set(data) {
+    console.log('StorageManager.set called with:', data);
+    console.log('isChromeExtension:', this.isChromeExtension);
+    
     if (this.isChromeExtension) {
       return new Promise((resolve, reject) => {
         try {
           chrome.storage.local.set(data, () => {
             if (chrome.runtime.lastError) {
+              console.error('Chrome storage error:', chrome.runtime.lastError);
               reject(chrome.runtime.lastError);
             } else {
+              console.log('Data saved to Chrome storage successfully');
               resolve();
             }
           });
         } catch (error) {
+          console.error('Error in Chrome storage set:', error);
           reject(error);
         }
       });
     } else {
       Object.keys(data).forEach(key => {
         localStorage.setItem(key, JSON.stringify(data[key]));
+        console.log(`Data saved to localStorage: ${key} =`, data[key]);
       });
       return Promise.resolve();
     }

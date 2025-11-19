@@ -33,7 +33,13 @@ export class SettingsManager {
   }
 
   async saveSettings() {
-    await this.storage.set('appSettings', this.settings);
+    console.log('saveSettings called with:', this.settings);
+    try {
+      await this.storage.set({ appSettings: this.settings });
+      console.log('Settings saved successfully');
+    } catch (error) {
+      console.error('Error saving settings:', error);
+    }
   }
 
   getDefaultSettings() {
@@ -160,6 +166,7 @@ export class SettingsManager {
   }
 
   changeBackground(backgroundImage) {
+    console.log('changeBackground called with:', backgroundImage);
     this.settings.background = backgroundImage;
     this.saveSettings();
     this.applyBackground();
@@ -192,13 +199,19 @@ export class SettingsManager {
   async exportBackup() {
     try {
       // Collect data from all modules
+      const bookmarksResult = await this.storage.get('bookmarks');
+      const todosResult = await this.storage.get('todos');
+      const stickyNotesResult = await this.storage.get('stickyNotes');
+      const weatherSettingsResult = await this.storage.get('weatherSettings');
+      const newsSettingsResult = await this.storage.get('newsSettings');
+
       const backupData = {
-        bookmarks: await this.storage.get('bookmarks') || [],
-        todos: await this.storage.get('todos') || [],
-        stickyNotes: await this.storage.get('stickyNotes') || [],
+        bookmarks: bookmarksResult.bookmarks || [],
+        todos: todosResult.todos || [],
+        stickyNotes: stickyNotesResult.stickyNotes || [],
         settings: this.settings,
-        weatherSettings: await this.storage.get('weatherSettings') || {},
-        newsSettings: await this.storage.get('newsSettings') || {},
+        weatherSettings: weatherSettingsResult.weatherSettings || {},
+        newsSettings: newsSettingsResult.newsSettings || {},
         exportDate: new Date().toISOString(),
         version: '1.0.0'
       };
@@ -242,15 +255,15 @@ export class SettingsManager {
           const restorePromises = [];
           
           if (backupData.bookmarks) {
-            restorePromises.push(this.storage.set('bookmarks', backupData.bookmarks));
+            restorePromises.push(this.storage.set({ bookmarks: backupData.bookmarks }));
           }
           
           if (backupData.todos) {
-            restorePromises.push(this.storage.set('todos', backupData.todos));
+            restorePromises.push(this.storage.set({ todos: backupData.todos }));
           }
           
           if (backupData.stickyNotes) {
-            restorePromises.push(this.storage.set('stickyNotes', backupData.stickyNotes));
+            restorePromises.push(this.storage.set({ stickyNotes: backupData.stickyNotes }));
           }
           
           if (backupData.settings) {
@@ -259,11 +272,11 @@ export class SettingsManager {
           }
           
           if (backupData.weatherSettings) {
-            restorePromises.push(this.storage.set('weatherSettings', backupData.weatherSettings));
+            restorePromises.push(this.storage.set({ weatherSettings: backupData.weatherSettings }));
           }
           
           if (backupData.newsSettings) {
-            restorePromises.push(this.storage.set('newsSettings', backupData.newsSettings));
+            restorePromises.push(this.storage.set({ newsSettings: backupData.newsSettings }));
           }
 
           await Promise.all(restorePromises);

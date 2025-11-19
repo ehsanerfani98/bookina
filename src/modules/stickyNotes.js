@@ -12,6 +12,7 @@ export class StickyNotesManager {
     this.currentNote = null;
     this.isDragging = false;
     this.dragOffset = { x: 0, y: 0 };
+    this._eventListenersSet = false;
   }
 
   async initialize() {
@@ -39,10 +40,15 @@ export class StickyNotesManager {
   }
 
   async saveStickyNotes() {
-    await this.storage.set('stickyNotes', this.stickyNotes);
+    await this.storage.set({ stickyNotes: this.stickyNotes });
   }
 
   setupEventListeners() {
+    // Prevent duplicate event listener setup
+    if (this._eventListenersSet) {
+      return;
+    }
+
     const addStickyNoteBtn = getElement('addStickyNote');
     const stickyNoteModal = getElement('stickyNoteModal');
     const cancelColorBtn = getElement('cancelColorBtn');
@@ -73,6 +79,9 @@ export class StickyNotesManager {
 
     // Handle window resize
     safeAddEventListener(window, 'resize', () => this.handleResize());
+
+    // Mark event listeners as set
+    this._eventListenersSet = true;
   }
 
   addStickyNote() {
