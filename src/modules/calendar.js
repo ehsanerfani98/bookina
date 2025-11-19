@@ -12,12 +12,12 @@ export class CalendarManager {
     this.daysContainer = getElement('calendarDays');
     this.dayName = getElement('currentDayName');
     this.jalaaliDate = getElement('currentJalaaliDate');
-    
+
     this.monthNames = [
       'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
       'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'
     ];
-    
+
     this.dayNames = [
       'شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه'
     ];
@@ -29,10 +29,10 @@ export class CalendarManager {
   async initialize() {
     const today = new Date();
     const [jy, jm, jd] = this.gregorianToJalali(today.getFullYear(), today.getMonth() + 1, today.getDate());
-    
+
     this.currentJalali = { year: jy, month: jm, day: jd };
     this.selectedJalali = { year: jy, month: jm, day: jd };
-    
+
     this.renderCalendar();
     this.updateTodayInfo();
     return Promise.resolve();
@@ -104,52 +104,52 @@ export class CalendarManager {
 
     const jy = this.currentJalali.year;
     const jm = this.currentJalali.month;
-    
+
     // Update header
     this.monthYear.textContent = `${this.monthNames[jm - 1]} ${this.toPersianNumber(jy)}`;
-    
+
     // Get first day of month and number of days
     const firstDayWeekday = this.getJalaliWeekday(jy, jm, 1);
     const daysInMonth = this.getJalaliMonthLength(jy, jm);
-    
+
     // Add empty cells for days before the first day of month
     for (let i = 0; i < firstDayWeekday; i++) {
       const dayElement = createElement('div', { className: 'calendar-day empty' });
       this.daysContainer.appendChild(dayElement);
     }
-    
+
     // Add days of current month
     const today = new Date();
     const [todayJy, todayJm, todayJd] = this.gregorianToJalali(today.getFullYear(), today.getMonth() + 1, today.getDate());
-    
+
     for (let day = 1; day <= daysInMonth; day++) {
       const dayElement = createElement('div', { className: 'calendar-day' }, this.toPersianNumber(day));
-      
+
       // Check if this is today
       if (day === todayJd && jm === todayJm && jy === todayJy) {
         dayElement.classList.add('today');
       }
-      
+
       // Check if this is selected date
-      if (day === this.selectedJalali.day && 
-          jm === this.selectedJalali.month && 
-          jy === this.selectedJalali.year) {
+      if (day === this.selectedJalali.day &&
+        jm === this.selectedJalali.month &&
+        jy === this.selectedJalali.year) {
         dayElement.classList.add('selected');
       }
-      
+
       // Color Fridays (dayOfWeek === 6 in Iranian calendar)
       const dayOfWeek = (firstDayWeekday + day - 1) % 7;
       if (dayOfWeek === 6) {
         dayElement.classList.add('friday');
       }
-      
+
       safeAddEventListener(dayElement, 'click', () => {
         this.selectDate(jy, jm, day);
       });
-      
+
       this.daysContainer.appendChild(dayElement);
     }
-    
+
     // Add empty cells for days after the last day of month
     const totalCells = 42; // 6 weeks * 7 days
     const remainingCells = totalCells - (firstDayWeekday + daysInMonth);
@@ -169,10 +169,10 @@ export class CalendarManager {
     const today = new Date();
     const [todayJy, todayJm, todayJd] = this.gregorianToJalali(today.getFullYear(), today.getMonth() + 1, today.getDate());
     const todayWeekday = this.getJalaliWeekday(todayJy, todayJm, todayJd);
-    
-    if (this.selectedJalali.year === todayJy && 
-        this.selectedJalali.month === todayJm && 
-        this.selectedJalali.day === todayJd) {
+
+    if (this.selectedJalali.year === todayJy &&
+      this.selectedJalali.month === todayJm &&
+      this.selectedJalali.day === todayJd) {
       this.dayName.textContent = this.dayNames[todayWeekday];
       this.jalaaliDate.textContent = `${this.toPersianNumber(todayJd)} ${this.monthNames[todayJm - 1]} ${this.toPersianNumber(todayJy)}`;
     } else {
@@ -212,7 +212,7 @@ export class CalendarManager {
   }
 
   toPersianNumber(input) {
-    const digits = ["۰","۱","۲","۳","۴","۵","۶","۷","۸","۹"];
+    const digits = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
     return input.toString().replace(/\d/g, c => digits[c]);
   }
 

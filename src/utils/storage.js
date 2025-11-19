@@ -6,11 +6,11 @@ export class StorageManager {
   constructor() {
     // More specific check for Chrome extension context
     // In Chrome new tab, we might have chrome object but not storage access
-    this.isChromeExtension = typeof chrome !== 'undefined' && 
-                            chrome.storage && 
-                            chrome.storage.local &&
-                            typeof chrome.storage.local.set === 'function' &&
-                            !window.location.href.startsWith('chrome://');
+    this.isChromeExtension = typeof chrome !== 'undefined' &&
+      chrome.storage &&
+      chrome.storage.local &&
+      typeof chrome.storage.local.set === 'function' &&
+      !window.location.href.startsWith('chrome://');
   }
 
   /**
@@ -49,7 +49,7 @@ export class StorageManager {
   async set(data) {
     console.log('StorageManager.set called with:', data);
     console.log('isChromeExtension:', this.isChromeExtension);
-    
+
     if (this.isChromeExtension) {
       return new Promise((resolve, reject) => {
         try {

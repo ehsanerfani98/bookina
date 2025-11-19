@@ -10,7 +10,7 @@ export class SettingsManager {
     this.storage = new StorageManager();
     this.settings = {};
     this.availableBackgrounds = [
-      'bg1.jpg', 'bg2.jpg', 'bg3.jpg', 'bg4.jpg', 
+      'bg1.jpg', 'bg2.jpg', 'bg3.jpg', 'bg4.jpg',
       'bg5.jpg', 'bg6.jpg', 'bg7.jpg', 'bg8.jpg'
     ];
   }
@@ -47,6 +47,7 @@ export class SettingsManager {
       theme: 'light',
       language: 'fa',
       background: 'bg1.jpg',
+      customBackground: null,
       autoRefresh: {
         weather: true,
         news: true
@@ -68,6 +69,9 @@ export class SettingsManager {
     const exportBtn = getElement('exportBackup');
     const importBtn = getElement('importBackup');
     const importFile = getElement('importFile');
+    const uploadBackgroundBtn = getElement('uploadBackgroundBtn');
+    const backgroundUpload = getElement('backgroundUpload');
+    const removeCustomBackgroundBtn = getElement('removeCustomBackgroundBtn');
 
     if (settingsBtn) {
       safeAddEventListener(settingsBtn, 'click', () => this.showSettings());
@@ -93,9 +97,22 @@ export class SettingsManager {
       safeAddEventListener(importFile, 'change', (e) => this.importBackup(e));
     }
 
+    // Custom background upload
+    if (uploadBackgroundBtn) {
+      safeAddEventListener(uploadBackgroundBtn, 'click', () => backgroundUpload?.click());
+    }
+
+    if (backgroundUpload) {
+      safeAddEventListener(backgroundUpload, 'change', (e) => this.handleBackgroundUpload(e));
+    }
+
+    if (removeCustomBackgroundBtn) {
+      safeAddEventListener(removeCustomBackgroundBtn, 'click', () => this.removeCustomBackground());
+    }
+
     // Background selection
     this.setupBackgroundSelection();
-    
+
     // Theme selection (only if element exists)
     this.setupThemeSelection();
   }
@@ -113,7 +130,7 @@ export class SettingsManager {
       thumb.className = 'bg-thumb';
       thumb.style.backgroundImage = `url('images/${img}')`;
       thumb.dataset.img = img;
-      
+
       if (this.settings.background === img) {
         thumb.classList.add('selected');
       }
@@ -131,7 +148,7 @@ export class SettingsManager {
     if (!themeSelect) return;
 
     themeSelect.value = this.settings.theme;
-    
+
     safeAddEventListener(themeSelect, 'change', (e) => {
       this.changeTheme(e.target.value);
     });
@@ -163,6 +180,9 @@ export class SettingsManager {
     document.querySelectorAll('.bg-thumb').forEach(thumb => {
       thumb.classList.toggle('selected', thumb.dataset.img === this.settings.background);
     });
+
+    // Update custom background UI
+    this.updateCustomBackgroundUI();
   }
 
   changeBackground(backgroundImage) {
@@ -182,16 +202,82 @@ export class SettingsManager {
   applySettings() {
     this.applyBackground();
     this.applyTheme();
+    this.updateCustomBackgroundUI();
   }
 
   applyBackground() {
-    document.body.style.backgroundImage = `url('images/${this.settings.background}')`;
+    if (this.settings.customBackground) {
+      document.body.style.backgroundImage = `url(${this.settings.customBackground})`;
+    } else {
+      document.body.style.backgroundImage = `url('images/${this.settings.background}')`;
+    }
+  }
+
+  handleBackgroundUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      this.showNotification('لطفاً یک فایل تصویری انتخاب کنید', 'error');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      this.showNotification('حجم فایل نباید بیشتر از ۵ مگابایت باشد', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      try {
+        const dataUrl = e.target.result;
+        this.settings.customBackground = dataUrl;
+        this.saveSettings();
+        this.applyBackground();
+        this.updateCustomBackgroundUI();
+        this.showNotification('پس‌زمینه سفارشی با موفقیت اعمال شد ✅', 'success');
+      } catch (error) {
+        console.error('Error processing background image:', error);
+        this.showNotification('خطا در پردازش تصویر ❌', 'error');
+      }
+    };
+
+    reader.onerror = () => {
+      this.showNotification('خطا در خواندن فایل ❌', 'error');
+    };
+
+    reader.readAsDataURL(file);
+    
+    // Reset file input
+    event.target.value = '';
+  }
+
+  removeCustomBackground() {
+    this.settings.customBackground = null;
+    this.saveSettings();
+    this.applyBackground();
+    this.updateCustomBackgroundUI();
+    this.showNotification('پس‌زمینه سفارشی حذف شد', 'info');
+  }
+
+  updateCustomBackgroundUI() {
+    const removeCustomBackgroundBtn = getElement('removeCustomBackgroundBtn');
+    if (removeCustomBackgroundBtn) {
+      if (this.settings.customBackground) {
+        removeCustomBackgroundBtn.style.display = 'block';
+      } else {
+        removeCustomBackgroundBtn.style.display = 'none';
+      }
+    }
   }
 
   applyTheme() {
     // Remove existing theme classes
     document.body.classList.remove('theme-light', 'theme-dark');
-    
+
     // Add current theme class
     document.body.classList.add(`theme-${this.settings.theme}`);
   }
@@ -241,11 +327,11 @@ export class SettingsManager {
 
     try {
       const reader = new FileReader();
-      
+
       reader.onload = async (e) => {
         try {
           const backupData = JSON.parse(e.target.result);
-          
+
           // Validate backup structure
           if (!this.validateBackupData(backupData)) {
             throw new Error('فرمت فایل بکاپ نامعتبر است');
@@ -253,53 +339,53 @@ export class SettingsManager {
 
           // Restore data to storage
           const restorePromises = [];
-          
+
           if (backupData.bookmarks) {
             restorePromises.push(this.storage.set({ bookmarks: backupData.bookmarks }));
           }
-          
+
           if (backupData.todos) {
             restorePromises.push(this.storage.set({ todos: backupData.todos }));
           }
-          
+
           if (backupData.stickyNotes) {
             restorePromises.push(this.storage.set({ stickyNotes: backupData.stickyNotes }));
           }
-          
+
           if (backupData.settings) {
             this.settings = { ...this.settings, ...backupData.settings };
             restorePromises.push(this.saveSettings());
           }
-          
+
           if (backupData.weatherSettings) {
             restorePromises.push(this.storage.set({ weatherSettings: backupData.weatherSettings }));
           }
-          
+
           if (backupData.newsSettings) {
             restorePromises.push(this.storage.set({ newsSettings: backupData.newsSettings }));
           }
 
           await Promise.all(restorePromises);
-          
+
           // Apply settings
           this.applySettings();
-          
+
           // Refresh all modules
           if (window.bookinaApp) {
             await window.bookinaApp.refreshAll();
           }
 
           this.showNotification('بکاپ با موفقیت بازیابی شد ✅', 'success');
-          
+
           // Reset file input
           event.target.value = '';
-          
+
         } catch (error) {
           console.error('Import backup error:', error);
           this.showNotification('فایل بکاپ معتبر نیست ❌', 'error');
         }
       };
-      
+
       reader.readAsText(file);
     } catch (error) {
       console.error('File read error:', error);

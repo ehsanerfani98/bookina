@@ -10,7 +10,7 @@ export class BookmarksManager {
     this.bookmarks = [];
     this.editingBookmarkId = null;
     this.draggedId = null;
-    
+
     // DOM Elements
     this.container = getElement('bookmarksContainer');
     this.addBtn = getElement('addBookmark');
@@ -20,7 +20,7 @@ export class BookmarksManager {
     this.urlInput = getElement('url');
     this.modalTitle = getElement('modalTitle');
     this.cancelBtn = getElement('cancelBtn');
-    
+
     this.initialize();
   }
 
@@ -45,7 +45,7 @@ export class BookmarksManager {
     safeAddEventListener(this.modal, 'click', (e) => {
       if (e.target === this.modal) this.hideModal();
     });
-    
+
     this.form.addEventListener('submit', (e) => this.handleSubmit(e));
   }
 
@@ -110,7 +110,7 @@ export class BookmarksManager {
     // Edit and delete buttons
     const editBtn = bookmarkCard.querySelector('.edit-btn');
     const deleteBtn = bookmarkCard.querySelector('.delete-btn');
-    
+
     safeAddEventListener(editBtn, 'click', (e) => this.handleEdit(e));
     safeAddEventListener(deleteBtn, 'click', (e) => this.handleDelete(e));
 
@@ -183,7 +183,7 @@ export class BookmarksManager {
 
   async handleDelete(e) {
     const id = e.target.dataset.id;
-    
+
     const confirmed = await confirmDialog('آیا مطمئن هستید که می‌خواهید این نشانک را حذف کنید؟');
     if (confirmed) {
       this.bookmarks = this.bookmarks.filter(b => b.id !== id);

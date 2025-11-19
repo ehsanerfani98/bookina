@@ -31,7 +31,7 @@ export class WeatherManager {
     const settings = result.weatherSettings;
     if (settings && settings.city) {
       this.currentCity = settings.city;
-      
+
       // Update city select if exists
       const citySelect = getElement('citySelect');
       if (citySelect) {
@@ -41,10 +41,12 @@ export class WeatherManager {
   }
 
   async saveSettings() {
-    await this.storage.set({ weatherSettings: {
-      city: this.currentCity,
-      lastUpdate: this.lastUpdate
-    }});
+    await this.storage.set({
+      weatherSettings: {
+        city: this.currentCity,
+        lastUpdate: this.lastUpdate
+      }
+    });
   }
 
   setupEventListeners() {
@@ -89,7 +91,7 @@ export class WeatherManager {
       }
 
       const geoData = await geoResponse.json();
-      
+
       if (!geoData.length) {
         weatherInfo.innerHTML = `
           <div class="error">

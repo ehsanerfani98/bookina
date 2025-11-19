@@ -35,14 +35,16 @@ export class NewsManager {
   }
 
   async saveSettings() {
-    await this.storage.set({ newsSettings: {
-      lastUpdate: this.lastUpdate
-    }});
+    await this.storage.set({
+      newsSettings: {
+        lastUpdate: this.lastUpdate
+      }
+    });
   }
 
   setupEventListeners() {
     const refreshBtn = getElement('refresh');
-    
+
     if (refreshBtn) {
       safeAddEventListener(refreshBtn, 'click', () => this.loadNews());
     }
@@ -50,7 +52,7 @@ export class NewsManager {
 
   async loadNews() {
     if (this.isLoading) return;
-    
+
     this.isLoading = true;
     const newsList = getElement('newsList');
     const refreshBtn = getElement('refreshNews');
@@ -78,15 +80,15 @@ export class NewsManager {
 
       let response;
       let data;
-      
+
       for (const proxyUrl of proxies) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
-        
+
         try {
           response = await fetch(proxyUrl, { signal: controller.signal });
           clearTimeout(timeoutId);
-          
+
           if (response.ok) {
             data = await response.json();
             break;
@@ -113,14 +115,14 @@ export class NewsManager {
           const link = item.querySelector("link")?.textContent || '#';
           const description = item.querySelector("description")?.textContent || '';
           const pubDate = item.querySelector("pubDate")?.textContent || '';
-          
-      this.newsItems.push({
-        id: `news_${index}`,
-        title,
-        link,
-        description,
-        pubDate
-      });
+
+          this.newsItems.push({
+            id: `news_${index}`,
+            title,
+            link,
+            description,
+            pubDate
+          });
         }
       });
 

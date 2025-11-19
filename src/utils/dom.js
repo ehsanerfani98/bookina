@@ -25,7 +25,7 @@ export function getElement(id, throwError = false) {
  */
 export function createElement(tag, attributes = {}, children = null) {
   const element = document.createElement(tag);
-  
+
   // Set attributes
   Object.keys(attributes).forEach(key => {
     if (key === 'className') {
@@ -36,7 +36,7 @@ export function createElement(tag, attributes = {}, children = null) {
       element.setAttribute(key, attributes[key]);
     }
   });
-  
+
   // Add children
   if (children) {
     if (Array.isArray(children)) {
@@ -53,7 +53,7 @@ export function createElement(tag, attributes = {}, children = null) {
       element.appendChild(children);
     }
   }
-  
+
   return element;
 }
 
@@ -69,7 +69,7 @@ export function safeAddEventListener(element, event, handler, options = {}) {
     console.warn('Cannot add event listener to null element');
     return;
   }
-  
+
   try {
     element.addEventListener(event, handler, options);
   } catch (error) {
@@ -170,7 +170,7 @@ export function showNotification(message, type = 'info', duration = 3000) {
       transition: all 0.3s ease;
     `
   }, message);
-  
+
   // Set background color based on type
   const colors = {
     success: '#10b981',
@@ -178,18 +178,18 @@ export function showNotification(message, type = 'info', duration = 3000) {
     warning: '#f59e0b',
     info: '#3b82f6'
   };
-  
+
   notification.style.backgroundColor = colors[type] || colors.info;
-  
+
   // Add to document
   document.body.appendChild(notification);
-  
+
   // Animate in
   setTimeout(() => {
     notification.style.transform = 'translateX(0)';
     notification.style.opacity = '1';
   }, 10);
-  
+
   // Remove after duration
   setTimeout(() => {
     notification.style.transform = 'translateX(100%)';

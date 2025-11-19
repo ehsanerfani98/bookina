@@ -1104,9 +1104,11 @@ option {
 }
 
 .color-option {
-  flex: 0 0 calc(15% - 10px); /* چهار تا در هر ردیف */
+  flex: 0 0 calc(15% - 10px);
+  /* چهار تا در هر ردیف */
   max-width: calc(15% - 10px);
-  aspect-ratio: 1; /* مربع کامل */
+  aspect-ratio: 1;
+  /* مربع کامل */
   border-radius: 50%;
   cursor: pointer;
   transition: transform 0.2s;
@@ -1333,4 +1335,10 @@ option {
   width: 1px;
   height: 16px;
   border-radius: 50px;
+}
+
+.custom-background-upload {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }

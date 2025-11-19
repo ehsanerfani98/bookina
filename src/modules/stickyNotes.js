@@ -29,7 +29,7 @@ export class StickyNotesManager {
   async loadStickyNotes() {
     const result = await this.storage.get('stickyNotes');
     this.stickyNotes = result.stickyNotes || [];
-    
+
     // Initialize default positions if not set
     this.stickyNotes.forEach(note => {
       if (!note.x || !note.y) {
@@ -131,7 +131,7 @@ export class StickyNotesManager {
 
     this.makeDraggable(noteElement);
     this.setupNoteEventListeners(noteElement, note);
-    
+
     stickyNotesContainer.appendChild(noteElement);
     return noteElement;
   }
@@ -172,31 +172,31 @@ export class StickyNotesManager {
     let startX, startY, initialX, initialY;
 
     const header = element.querySelector('.sticky-note-header');
-    
+
     safeAddEventListener(header, 'mousedown', (e) => {
       isDragging = true;
       this.isDragging = true;
-      
+
       startX = e.clientX;
       startY = e.clientY;
       initialX = parseInt(element.style.left) || 0;
       initialY = parseInt(element.style.top) || 0;
 
       element.style.cursor = 'grabbing';
-      
+
       safeAddEventListener(document, 'mousemove', onMouseMove);
       safeAddEventListener(document, 'mouseup', onMouseUp);
     });
 
     const onMouseMove = (e) => {
       if (!isDragging) return;
-      
+
       const deltaX = e.clientX - startX;
       const deltaY = e.clientY - startY;
-      
+
       const newX = Math.max(0, Math.min(window.innerWidth - element.offsetWidth, initialX + deltaX));
       const newY = Math.max(0, Math.min(window.innerHeight - element.offsetHeight, initialY + deltaY));
-      
+
       element.style.left = newX + 'px';
       element.style.top = newY + 'px';
     };
@@ -205,10 +205,10 @@ export class StickyNotesManager {
       isDragging = false;
       this.isDragging = false;
       element.style.cursor = 'grab';
-      
+
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
-      
+
       // Save position
       const noteId = element.id;
       const note = this.stickyNotes.find(n => n.id === noteId);
@@ -246,13 +246,13 @@ export class StickyNotesManager {
   changeNoteColor(color) {
     if (this.currentNote) {
       this.currentNote.color = color;
-      
+
       // Update color in DOM
       const noteElement = document.getElementById(this.currentNote.id);
       if (noteElement) {
         noteElement.style.backgroundColor = color;
       }
-      
+
       this.saveStickyNotes();
       this.hideColorModal();
     }
@@ -262,7 +262,7 @@ export class StickyNotesManager {
     if (confirm('آیا از حذف این یادداشت مطمئن هستید؟')) {
       this.stickyNotes = this.stickyNotes.filter(note => note.id !== noteId);
       this.saveStickyNotes();
-      
+
       const noteElement = document.getElementById(noteId);
       if (noteElement) {
         noteElement.remove();

@@ -8,12 +8,12 @@ import { getElement, createElement, clearChildren, safeAddEventListener } from '
 export class TodosManager {
   constructor() {
     this.todos = [];
-    
+
     // DOM Elements
     this.container = getElement('todoList');
     this.input = getElement('todoInput');
     this.addBtn = getElement('addTodo');
-    
+
     this.initialize();
   }
 
@@ -87,9 +87,9 @@ export class TodosManager {
     const text = this.input.value.trim();
     if (!text) return;
 
-    this.todos.push({ 
-      text, 
-      status: 'pending' 
+    this.todos.push({
+      text,
+      status: 'pending'
     });
 
     this.input.value = '';
