@@ -20,23 +20,23 @@ class BookinaApp {
 
   async initialize() {
     try {
-      // Initialize all modules
-      await this.initializeModules();
-      
-      // Setup tab navigation
+      // Step 1: Set up UI immediately — tab navigation, global events
+      // These are synchronous and make the app responsive right away
       this.setupTabNavigation();
-      
-      // Setup global event listeners
       this.setupGlobalEvents();
-      
+
+      // Step 2: Initialize modules in the background
+      // No await — modules run concurrently without blocking the UI
+      this.initializeModules();
+
       console.log('Bookina App initialized successfully');
     } catch (error) {
       console.error('Failed to initialize Bookina App:', error);
     }
   }
 
-  async initializeModules() {
-    // Initialize each module
+  initializeModules() {
+    // Create all module instances (synchronous)
     this.modules.bookmarks = new BookmarksManager();
     this.modules.todos = new TodosManager();
     this.modules.calendar = new CalendarManager();
@@ -45,8 +45,9 @@ class BookinaApp {
     this.modules.stickyNotes = new StickyNotesManager();
     this.modules.settings = new SettingsManager();
 
-    // Wait for all modules to be ready
-    await Promise.all([
+    // Fire all module initializations concurrently in the background
+    // Promise.all is NOT awaited — modules initialize independently
+    Promise.all([
       this.modules.bookmarks.initialize(),
       this.modules.todos.initialize(),
       this.modules.calendar.initialize(),
@@ -54,7 +55,9 @@ class BookinaApp {
       this.modules.news.initialize(),
       this.modules.stickyNotes.initialize(),
       this.modules.settings.initialize()
-    ]);
+    ]).catch(error => {
+      console.error('Module initialization error:', error);
+    });
   }
 
   setupTabNavigation() {

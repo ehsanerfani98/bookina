@@ -2,13 +2,14 @@
  * Weather Manager Module
  * Handles weather information display and API integration
  */
-import { getElement } from '../utils/dom.js';
+import { getElement, safeAddEventListener } from '../utils/dom.js';
 import { StorageManager } from '../utils/storage.js';
+import { WEATHER_API_KEY } from '../config.js';
 
 export class WeatherManager {
   constructor() {
     this.storage = new StorageManager();
-    this.API_KEY = "7e5281913ad99ee9c641fac9516fd191";
+    this.API_KEY = WEATHER_API_KEY;
     this.currentCity = 'Tehran';
     this.refreshInterval = null;
     this.lastUpdate = null;
@@ -18,7 +19,10 @@ export class WeatherManager {
     try {
       await this.loadSettings();
       this.setupEventListeners();
-      await this.fetchWeather(this.currentCity);
+      // Load cached weather first for instant display
+      await this.loadCachedWeather();
+      // Then fetch fresh data in background
+      this.fetchWeather(this.currentCity);
       this.startAutoRefresh();
       console.log('Weather module initialized');
     } catch (error) {
@@ -49,22 +53,48 @@ export class WeatherManager {
     });
   }
 
+  async loadCachedWeather() {
+    const result = await this.storage.get('cachedWeather');
+    if (result.cachedWeather) {
+      const { weatherData, city, lastUpdate } = result.cachedWeather;
+      if (weatherData && city === this.currentCity) {
+        this.lastUpdate = lastUpdate ? new Date(lastUpdate) : null;
+        this.renderWeather(weatherData);
+        console.log('Loaded cached weather for:', city);
+      }
+    }
+  }
+
+  async saveCachedWeather(weatherData) {
+    await this.storage.set({
+      cachedWeather: {
+        weatherData,
+        city: this.currentCity,
+        lastUpdate: this.lastUpdate
+      }
+    });
+  }
+
   setupEventListeners() {
     const citySelect = getElement('citySelect');
-    const refreshBtn = getElement('refreshWeather');
 
-    if (citySelect) {
-      citySelect.addEventListener('change', (e) => {
-        this.currentCity = e.target.value;
-        this.fetchWeather(this.currentCity);
-        this.saveSettings();
-      });
-    }
+    safeAddEventListener(citySelect, 'change', (e) => {
+      this.currentCity = e.target.value;
+      this.fetchWeather(this.currentCity);
+      this.saveSettings();
+    });
+  }
 
-    if (refreshBtn) {
-      refreshBtn.addEventListener('click', () => {
-        this.fetchWeather(this.currentCity);
-      });
+  async fetchWithTimeout(url, timeoutMs = 15000) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      return response;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
     }
   }
 
@@ -73,16 +103,19 @@ export class WeatherManager {
     if (!weatherInfo) return;
 
     try {
-      // Show loading state
-      weatherInfo.innerHTML = `
-        <div class="loading">
-          <div class="spinner"></div>
-          <p>در حال دریافت اطلاعات آب و هوا...</p>
-        </div>
-      `;
+      // Show loading state only if no cached data is displayed
+      const hasCached = weatherInfo.querySelector('.weather-card') !== null;
+      if (!hasCached) {
+        weatherInfo.innerHTML = `
+          <div class="loading">
+            <div class="spinner"></div>
+            <p>در حال دریافت اطلاعات آب و هوا...</p>
+          </div>
+        `;
+      }
 
-      // Get coordinates first
-      const geoResponse = await fetch(
+      // Get coordinates first with timeout
+      const geoResponse = await this.fetchWithTimeout(
         `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(city)}&limit=1&appid=${this.API_KEY}`
       );
 
@@ -96,16 +129,20 @@ export class WeatherManager {
         weatherInfo.innerHTML = `
           <div class="error">
             <p>❌ شهر "${city}" پیدا نشد</p>
-            <button onclick="window.bookinaApp.getModule('weather').fetchWeather('${this.currentCity}')">تلاش مجدد</button>
+            <button class="retry-weather-btn">تلاش مجدد</button>
           </div>
         `;
+        const retryBtn = weatherInfo.querySelector('.retry-weather-btn');
+        if (retryBtn) {
+          safeAddEventListener(retryBtn, 'click', () => this.fetchWeather(this.currentCity));
+        }
         return;
       }
 
       const { lat, lon } = geoData[0];
 
-      // Get weather data
-      const weatherResponse = await fetch(
+      // Get weather data with timeout
+      const weatherResponse = await this.fetchWithTimeout(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${this.API_KEY}&lang=fa&units=metric`
       );
 
@@ -114,19 +151,33 @@ export class WeatherManager {
       }
 
       const weatherData = await weatherResponse.json();
+
       this.lastUpdate = new Date();
       await this.saveSettings();
+      await this.saveCachedWeather(weatherData);
       this.renderWeather(weatherData);
 
     } catch (error) {
       console.error('Weather API Error:', error);
+
+      // If we have cached data, keep showing it instead of error
+      const hasCached = weatherInfo.querySelector('.weather-card') !== null;
+      if (hasCached) {
+        console.log('Keeping cached weather due to fetch error');
+        return;
+      }
+
       weatherInfo.innerHTML = `
         <div class="error">
           <p>⚠ خطا در دریافت اطلاعات</p>
-          <p class="error-details">${error.message}</p>
-          <button onclick="window.bookinaApp.getModule('weather').fetchWeather('${this.currentCity}')">تلاش مجدد</button>
+          <p class="error-details">${error.name === 'AbortError' ? 'درخواست زمان‌بر شد (اینترنت خود را بررسی کنید)' : error.message}</p>
+          <button class="retry-weather-btn">تلاش مجدد</button>
         </div>
       `;
+      const retryBtn = weatherInfo.querySelector('.retry-weather-btn');
+      if (retryBtn) {
+        safeAddEventListener(retryBtn, 'click', () => this.fetchWeather(this.currentCity));
+      }
     }
   }
 

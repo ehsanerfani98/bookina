@@ -2,7 +2,7 @@
  * Sticky Notes Manager Module
  * Handles sticky notes with drag & drop functionality
  */
-import { getElement, safeAddEventListener } from '../utils/dom.js';
+import { getElement, safeAddEventListener, confirmDialog, escapeHtml } from '../utils/dom.js';
 import { StorageManager } from '../utils/storage.js';
 
 export class StickyNotesManager {
@@ -20,7 +20,6 @@ export class StickyNotesManager {
       await this.loadStickyNotes();
       this.setupEventListeners();
       this.renderStickyNotes();
-      console.log('Sticky Notes module initialized');
     } catch (error) {
       console.error('Failed to initialize sticky notes module:', error);
     }
@@ -30,11 +29,11 @@ export class StickyNotesManager {
     const result = await this.storage.get('stickyNotes');
     this.stickyNotes = result.stickyNotes || [];
 
-    // Initialize default positions if not set
+    // Initialize default positions only if not set (null/undefined check)
     this.stickyNotes.forEach(note => {
-      if (!note.x || !note.y) {
-        note.x = Math.random() * (window.innerWidth - 300);
-        note.y = Math.random() * (window.innerHeight - 300);
+      if (note.x == null || note.y == null || isNaN(note.x) || isNaN(note.y)) {
+        note.x = Math.max(0, Math.random() * (window.innerWidth - 300));
+        note.y = Math.max(0, Math.random() * (window.innerHeight - 300));
       }
     });
   }
@@ -77,14 +76,11 @@ export class StickyNotesManager {
       });
     });
 
-    // Handle window resize
-    safeAddEventListener(window, 'resize', () => this.handleResize());
-
     // Mark event listeners as set
     this._eventListenersSet = true;
   }
 
-  addStickyNote() {
+  async addStickyNote() {
     const newNote = {
       id: 'note_' + Date.now(),
       content: '',
@@ -97,7 +93,7 @@ export class StickyNotesManager {
     };
 
     this.stickyNotes.push(newNote);
-    this.saveStickyNotes();
+    await this.saveStickyNotes();
     this.createStickyNoteElement(newNote);
   }
 
@@ -126,7 +122,7 @@ export class StickyNotesManager {
           </button>
         </div>
       </div>
-      <textarea class="sticky-note-content" placeholder="یادداشت خود را اینجا بنویسید...">${this.escapeHtml(note.content)}</textarea>
+      <textarea class="sticky-note-content" placeholder="یادداشت خود را اینجا بنویسید...">${escapeHtml(note.content)}</textarea>
     `;
 
     this.makeDraggable(noteElement);
@@ -144,10 +140,14 @@ export class StickyNotesManager {
       this.showColorModal();
     });
 
-    // Delete button
+    // Delete button — properly await the async operation
     const deleteBtn = noteElement.querySelector('.sticky-note-delete-btn');
-    safeAddEventListener(deleteBtn, 'click', () => {
-      this.deleteStickyNote(note.id);
+    safeAddEventListener(deleteBtn, 'click', async () => {
+      try {
+        await this.deleteStickyNote(note.id);
+      } catch (error) {
+        console.error('Error deleting sticky note:', error);
+      }
     });
 
     // Content changes
@@ -174,6 +174,11 @@ export class StickyNotesManager {
     const header = element.querySelector('.sticky-note-header');
 
     safeAddEventListener(header, 'mousedown', (e) => {
+      // Don't start drag if clicking on a button inside the header
+      if (e.target.closest('button')) {
+        return;
+      }
+
       isDragging = true;
       this.isDragging = true;
 
@@ -184,8 +189,8 @@ export class StickyNotesManager {
 
       element.style.cursor = 'grabbing';
 
-      safeAddEventListener(document, 'mousemove', onMouseMove);
-      safeAddEventListener(document, 'mouseup', onMouseUp);
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
     });
 
     const onMouseMove = (e) => {
@@ -258,10 +263,11 @@ export class StickyNotesManager {
     }
   }
 
-  deleteStickyNote(noteId) {
-    if (confirm('آیا از حذف این یادداشت مطمئن هستید؟')) {
+  async deleteStickyNote(noteId) {
+    const confirmed = await confirmDialog('آیا از حذف این یادداشت مطمئن هستید؟');
+    if (confirmed) {
       this.stickyNotes = this.stickyNotes.filter(note => note.id !== noteId);
-      this.saveStickyNotes();
+      await this.saveStickyNotes();
 
       const noteElement = document.getElementById(noteId);
       if (noteElement) {
@@ -282,17 +288,30 @@ export class StickyNotesManager {
 
   handleResize() {
     // Ensure notes stay within bounds on window resize
+    // IMPORTANT: Do NOT call renderStickyNotes() — that destroys all DOM elements,
+    // loses textarea content/cursor position, and causes flickering.
+    // Instead, only update the DOM elements whose positions actually changed.
+    let needsSave = false;
     this.stickyNotes.forEach(note => {
-      note.x = Math.min(note.x, window.innerWidth - note.width);
-      note.y = Math.min(note.y, window.innerHeight - note.height);
-    });
-    this.renderStickyNotes();
-  }
+      const clampedX = Math.min(note.x, Math.max(0, window.innerWidth - note.width));
+      const clampedY = Math.min(note.y, Math.max(0, window.innerHeight - note.height));
+      if (clampedX !== note.x || clampedY !== note.y) {
+        note.x = clampedX;
+        note.y = clampedY;
+        needsSave = true;
 
-  escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+        // Update only the affected note's DOM position directly
+        const noteElement = document.getElementById(note.id);
+        if (noteElement) {
+          noteElement.style.left = clampedX + 'px';
+          noteElement.style.top = clampedY + 'px';
+        }
+      }
+    });
+
+    if (needsSave) {
+      this.saveStickyNotes();
+    }
   }
 
   async saveState() {

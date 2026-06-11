@@ -225,10 +225,6 @@ export class CalendarManager {
     };
   }
 
-  goToToday() {
-    this.goToToday();
-  }
-
   goToDate(year, month) {
     this.currentJalali.year = year;
     this.currentJalali.month = month;

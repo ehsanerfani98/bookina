@@ -110,9 +110,6 @@ export class SettingsManager {
       safeAddEventListener(removeCustomBackgroundBtn, 'click', () => this.removeCustomBackground());
     }
 
-    // Background selection
-    this.setupBackgroundSelection();
-
     // Theme selection (only if element exists)
     this.setupThemeSelection();
   }

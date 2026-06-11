@@ -21,7 +21,6 @@ export class BookmarksManager {
     this.modalTitle = getElement('modalTitle');
     this.cancelBtn = getElement('cancelBtn');
 
-    this.initialize();
   }
 
   async initialize() {
@@ -74,15 +73,24 @@ export class BookmarksManager {
       'data-id': bookmark.id
     });
 
+    const faviconImg = createElement('img', {
+      src: bookmark.favicon,
+      alt: 'favicon'
+    });
+    const fallbackSvg = createElement('div', { style: 'display: none;' });
+    fallbackSvg.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <path d="M2 12c0-5.523 4.477-10 10-10s10 4.477 10 10"></path>
+    </svg>`;
+
+    safeAddEventListener(faviconImg, 'error', () => {
+      faviconImg.style.display = 'none';
+      fallbackSvg.style.display = 'flex';
+    });
+
     bookmarkCard.innerHTML = `
       <div class="bookmark-content" data-id="${bookmark.id}">
-        <div class="favicon">
-          <img src="${bookmark.favicon}" alt="favicon" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="M2 12c0-5.523 4.477-10 10-10s10 4.477 10 10"></path>
-          </svg>
-        </div>
+        <div class="favicon"></div>
         <div class="bookmark-info">
           <h3>${bookmark.title}</h3>
         </div>
@@ -92,12 +100,15 @@ export class BookmarksManager {
         <i class="fas fa-trash delete-btn" data-id="${bookmark.id}"></i>
       </div>
     `;
+    const faviconDiv = bookmarkCard.querySelector('.favicon');
+    faviconDiv.appendChild(faviconImg);
+    faviconDiv.appendChild(fallbackSvg);
 
     // Open link in new tab
     const content = bookmarkCard.querySelector('.bookmark-content');
     safeAddEventListener(content, 'click', (e) => {
       if (!e.target.closest('.bookmark-actions')) {
-        window.location.href = bookmark.url;
+        window.open(bookmark.url, '_blank');
       }
     });
 

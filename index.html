@@ -8,12 +8,11 @@
   <link rel="stylesheet" href="css/clock.css" />
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
-    integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ=="
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
-<body>
+<body style="background-position: center;background-size: cover;height: 100vh;">
 
 
  <!-- محتوای تب اصلی -->
@@ -32,7 +31,7 @@
       </div>
   
       <!-- ستون ۲: بوکمارک‌ها -->
-      <div class="">
+      <div class="widget card">
         <header>
           <button id="addBookmark" class="btn-glass-icon">
             <i class="fas fa-plus"></i>
@@ -167,7 +166,7 @@
 
   <div id="settingModal" class="modal">
     <div class="modal-content">
-      <h2 id="modalTitle">تنظیمات</h2>
+      <h2 id="modalTitleSettings">تنظیمات</h2>
       <div class="wrap-setting">
         <h4>انتخاب پس‌ زمینه</h4>
         <div id="backgrounds">
@@ -252,8 +251,8 @@
   <span class="version">نسخه 1.5.0</span>
   <span id="settingsBtn">تنظیمات</span>
 
-  <script type="module" src="script.js"></script>
   <script src="src/modules/clock.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
 
 </html>

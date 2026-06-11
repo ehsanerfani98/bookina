@@ -204,13 +204,67 @@ export function showNotification(message, type = 'info', duration = 3000) {
 
 /**
  * Confirm dialog with custom message
+ * Uses a custom modal instead of window.confirm() for Chrome extension compatibility
  * @param {string} message - Confirmation message
  * @returns {Promise<boolean>}
  */
 export function confirmDialog(message) {
   return new Promise((resolve) => {
-    const result = window.confirm(message);
-    resolve(result);
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'modal';
+    overlay.style.display = 'flex';
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+    modalContent.style.cssText = 'max-width: 400px; text-align: center; padding: 2rem;';
+
+    const messageEl = document.createElement('p');
+    messageEl.textContent = message;
+    messageEl.style.cssText = 'color: #afafaf; font-size: 14px; margin-bottom: 1.5rem; line-height: 1.8;';
+
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'form-actions';
+    actionsDiv.style.cssText = 'display: flex; justify-content: center; gap: 1rem;';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'btn-glass';
+    cancelBtn.textContent = 'انصراف';
+
+    const confirmBtn = document.createElement('button');
+    confirmBtn.type = 'button';
+    confirmBtn.className = 'btn-glass';
+    confirmBtn.textContent = 'تأیید حذف';
+    confirmBtn.style.cssText = 'background: #ef4444; color: white; border: none;';
+
+    actionsDiv.appendChild(cancelBtn);
+    actionsDiv.appendChild(confirmBtn);
+    modalContent.appendChild(messageEl);
+    modalContent.appendChild(actionsDiv);
+    overlay.appendChild(modalContent);
+    document.body.appendChild(overlay);
+
+    const cleanup = () => {
+      document.body.removeChild(overlay);
+    };
+
+    cancelBtn.addEventListener('click', () => {
+      cleanup();
+      resolve(false);
+    });
+
+    confirmBtn.addEventListener('click', () => {
+      cleanup();
+      resolve(true);
+    });
+
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        cleanup();
+        resolve(false);
+      }
+    });
   });
 }
 
@@ -242,5 +296,16 @@ export function loadStyle(href) {
     link.onload = resolve;
     link.onerror = reject;
     document.head.appendChild(link);
-  });
-}
+    });
+  }
+  
+  /**
+   * Escape HTML special characters to prevent XSS
+   * @param {string} text - Text to escape
+   * @returns {string} Escaped HTML string
+   */
+  export function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }

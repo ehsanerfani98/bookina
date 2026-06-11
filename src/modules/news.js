@@ -2,7 +2,7 @@
  * News Manager Module
  * Handles news feed integration and display
  */
-import { getElement, safeAddEventListener } from '../utils/dom.js';
+import { getElement, safeAddEventListener, escapeHtml } from '../utils/dom.js';
 import { StorageManager } from '../utils/storage.js';
 
 export class NewsManager {
@@ -18,7 +18,10 @@ export class NewsManager {
     try {
       await this.loadSettings();
       this.setupEventListeners();
-      await this.loadNews();
+      // Try to load cached news first for instant display
+      await this.loadCachedNews();
+      // Then fetch fresh news in background (async, no await)
+      this.loadNews();
       this.startAutoRefresh();
       console.log('News module initialized');
     } catch (error) {
@@ -42,6 +45,25 @@ export class NewsManager {
     });
   }
 
+  async loadCachedNews() {
+    const result = await this.storage.get('cachedNews');
+    if (result.cachedNews && result.cachedNews.items && result.cachedNews.items.length > 0) {
+      this.newsItems = result.cachedNews.items;
+      this.lastUpdate = result.cachedNews.lastUpdate ? new Date(result.cachedNews.lastUpdate) : null;
+      this.renderNews();
+      console.log('Loaded cached news:', this.newsItems.length, 'items');
+    }
+  }
+
+  async saveCachedNews() {
+    await this.storage.set({
+      cachedNews: {
+        items: this.newsItems,
+        lastUpdate: this.lastUpdate
+      }
+    });
+  }
+
   setupEventListeners() {
     const refreshBtn = getElement('refresh');
 
@@ -55,11 +77,11 @@ export class NewsManager {
 
     this.isLoading = true;
     const newsList = getElement('newsList');
-    const refreshBtn = getElement('refreshNews');
+    const refreshBtn = getElement('refresh');
 
     try {
-      // Show loading state
-      if (newsList) {
+      // Show loading state only when there's no cached content
+      if (newsList && this.newsItems.length === 0) {
         newsList.innerHTML = `
           <div class="loading">
             <div class="spinner"></div>
@@ -72,10 +94,13 @@ export class NewsManager {
         refreshBtn.className = 'fas fa-refresh refresh-news';
       }
 
-      // Try different CORS proxies for news feed with AbortController
+      // Multiple CORS proxy options with increased timeout
+      const feedUrl = "https://www.zoomit.ir/feed";
       const proxies = [
-        "https://api.allorigins.win/get?url=" + encodeURIComponent("https://www.zoomit.ir/feed"),
-        "https://corsproxy.io/?" + encodeURIComponent("https://www.zoomit.ir/feed")
+        "https://api.allorigins.win/get?url=" + encodeURIComponent(feedUrl),
+        "https://corsproxy.io/?" + encodeURIComponent(feedUrl),
+        "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(feedUrl),
+        "https://proxy.cors.sh/" + encodeURIComponent(feedUrl)
       ];
 
       let response;
@@ -83,14 +108,20 @@ export class NewsManager {
 
       for (const proxyUrl of proxies) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
         try {
           response = await fetch(proxyUrl, { signal: controller.signal });
           clearTimeout(timeoutId);
 
           if (response.ok) {
-            data = await response.json();
+            const text = await response.text();
+            // Try JSON (allorigins format), else treat as raw XML
+            try {
+              data = JSON.parse(text);
+            } catch {
+              data = { contents: text };
+            }
             break;
           }
         } catch (error) {
@@ -100,8 +131,20 @@ export class NewsManager {
         }
       }
 
-      if (!response || !response.ok) {
-        throw new Error(`خطا در دریافت اخبار: همه پروکسی‌ها ناموفق بودند`);
+      // If all proxies failed but we have cached news, keep showing it
+      if (!response || !data || !data.contents) {
+        if (this.newsItems.length > 0) {
+          console.log('Using cached news, fetch failed');
+          return;
+        }
+        if (newsList) {
+          newsList.innerHTML = `<div class="error"><p>⚠ خطا در دریافت اخبار</p><p class="error-details">اتصال به سرویس اخبار برقرار نشد</p><button class="retry-news-btn">تلاش مجدد</button></div>`;
+          const retryBtn = newsList.querySelector('.retry-news-btn');
+          if (retryBtn) {
+            safeAddEventListener(retryBtn, 'click', () => this.loadNews());
+          }
+        }
+        return;
       }
 
       const parser = new DOMParser();
@@ -128,10 +171,16 @@ export class NewsManager {
 
       this.lastUpdate = new Date();
       await this.saveSettings();
+      await this.saveCachedNews();
       this.renderNews();
 
     } catch (error) {
       console.error('News API Error:', error);
+      // Keep cached news visible instead of showing error
+      if (this.newsItems.length > 0) {
+        console.log('Keeping cached news due to fetch error');
+        return;
+      }
       if (newsList) {
         newsList.innerHTML = `
           <div class="error">
@@ -140,7 +189,6 @@ export class NewsManager {
             <button class="retry-news-btn">تلاش مجدد</button>
           </div>
         `;
-        // Add event listener for retry button
         const retryBtn = newsList.querySelector('.retry-news-btn');
         if (retryBtn) {
           safeAddEventListener(retryBtn, 'click', () => this.loadNews());
@@ -168,7 +216,7 @@ export class NewsManager {
       html += `
         <div class="news-item" data-index="${index}">
           <a href="${news.link}" target="_blank" class="news-link">
-            <span class="news-title">${this.escapeHtml(news.title)}</span>
+            <span class="news-title">${escapeHtml(news.title)}</span>
           </a>
           <div class="news-meta">
             ${news.pubDate ? `<span class="news-date">${this.formatDate(news.pubDate)}</span>` : ''}
@@ -180,12 +228,6 @@ export class NewsManager {
     newsList.innerHTML = html;
   }
 
-
-  escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
 
   formatDate(dateString) {
     try {

@@ -14,7 +14,6 @@ export class TodosManager {
     this.input = getElement('todoInput');
     this.addBtn = getElement('addTodo');
 
-    this.initialize();
   }
 
   async initialize() {

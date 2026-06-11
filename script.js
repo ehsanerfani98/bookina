@@ -45,6 +45,3 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.appendChild(errorDiv);
   }
 });
-
-// Export for potential external usage
-export default BookinaApp;

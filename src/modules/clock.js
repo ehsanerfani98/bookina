@@ -3,7 +3,7 @@
  * Handles the analog clock display
  */
 
-document.addEventListener("DOMContentLoaded", function () {
+(function () {
     const hr = document.getElementById('hr');
     const mn = document.getElementById('min');
     const sc = document.getElementById('sec');
@@ -32,4 +32,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Update every second
     setInterval(updateClock, 1000);
-});
+})();
