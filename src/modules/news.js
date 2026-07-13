@@ -80,7 +80,7 @@ export class NewsManager {
     const refreshBtn = getElement('refresh');
 
     try {
-      // Show loading state only when there's no cached content
+      // نمایش حالت لودینگ فقط در صورتی که کش خالی باشد
       if (newsList && this.newsItems.length === 0) {
         newsList.innerHTML = `
           <div class="loading">
@@ -91,112 +91,67 @@ export class NewsManager {
       }
 
       if (refreshBtn) {
-        refreshBtn.className = 'fas fa-refresh refresh-news';
+        // اضافه کردن fa-spin برای انیمیشن چرخش آیکون هنگام لودینگ
+        refreshBtn.className = 'fas fa-refresh fa-spin refresh-news';
       }
 
-      // Multiple CORS proxy options with increased timeout
+      // استفاده از سرویس rss2json برای دور زدن CORS و دریافت مستقیم JSON
       const feedUrl = "https://www.zoomit.ir/feed";
-      const proxies = [
-        "https://api.allorigins.win/get?url=" + encodeURIComponent(feedUrl),
-        "https://corsproxy.io/?" + encodeURIComponent(feedUrl),
-        "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(feedUrl),
-        "https://proxy.cors.sh/" + encodeURIComponent(feedUrl)
-      ];
-
-      let response;
-      let data;
-
-      for (const proxyUrl of proxies) {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
-
-        try {
-          response = await fetch(proxyUrl, { signal: controller.signal });
-          clearTimeout(timeoutId);
-
-          if (response.ok) {
-            const text = await response.text();
-            // Try JSON (allorigins format), else treat as raw XML
-            try {
-              data = JSON.parse(text);
-            } catch {
-              data = { contents: text };
-            }
-            break;
-          }
-        } catch (error) {
-          console.log(`Proxy ${proxyUrl} failed:`, error);
-          clearTimeout(timeoutId);
-          continue;
-        }
+      const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`;
+      
+      const response = await fetch(apiUrl);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // If all proxies failed but we have cached news, keep showing it
-      if (!response || !data || !data.contents) {
-        if (this.newsItems.length > 0) {
-          console.log('Using cached news, fetch failed');
-          return;
-        }
+      const data = await response.json();
+
+      if (data.status === 'ok' && data.items && data.items.length > 0) {
+        // نگاشت داده‌های دریافتی به فرمت استاندارد برنامه (حداکثر ۱۰ خبر)
+        this.newsItems = data.items.slice(0, 10).map((item, index) => ({
+          id: `news_${index}`,
+          title: item.title || 'بدون عنوان',
+          link: item.link || '#',
+          description: item.description || '',
+          pubDate: item.pubDate || ''
+        }));
+
+        this.lastUpdate = new Date();
+        await this.saveSettings();
+        await this.saveCachedNews();
+        this.renderNews();
+        console.log('News updated successfully:', this.newsItems.length, 'items');
+      } else {
+        throw new Error(data.message || 'داده‌ای از فید دریافت نشد');
+      }
+
+    } catch (error) {
+      console.error('News API Error:', error);
+      
+      // اگر خطا رخ داد اما اخبار کش‌شده داریم، آن‌ها را نگه می‌داریم تا صفحه خالی نماند
+      if (this.newsItems.length > 0) {
+        console.log('Keeping cached news due to fetch error');
+      } else {
+        // اگر کش هم نداریم، پیام خطا نمایش می‌دهیم
         if (newsList) {
-          newsList.innerHTML = `<div class="error"><p>⚠ خطا در دریافت اخبار</p><p class="error-details">اتصال به سرویس اخبار برقرار نشد</p><button class="retry-news-btn">تلاش مجدد</button></div>`;
+          newsList.innerHTML = `
+            <div class="error">
+              <p>⚠ خطا در دریافت اخبار</p>
+              <p class="error-details">اتصال به سرویس اخبار برقرار نشد</p>
+              <button class="retry-news-btn">تلاش مجدد</button>
+            </div>
+          `;
           const retryBtn = newsList.querySelector('.retry-news-btn');
           if (retryBtn) {
             safeAddEventListener(retryBtn, 'click', () => this.loadNews());
           }
         }
-        return;
-      }
-
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(data.contents, "application/xml");
-      const items = xml.querySelectorAll("item");
-
-      this.newsItems = [];
-      items.forEach((item, index) => {
-        if (index < 10) { // Limit to 10 items
-          const title = item.querySelector("title")?.textContent || 'بدون عنوان';
-          const link = item.querySelector("link")?.textContent || '#';
-          const description = item.querySelector("description")?.textContent || '';
-          const pubDate = item.querySelector("pubDate")?.textContent || '';
-
-          this.newsItems.push({
-            id: `news_${index}`,
-            title,
-            link,
-            description,
-            pubDate
-          });
-        }
-      });
-
-      this.lastUpdate = new Date();
-      await this.saveSettings();
-      await this.saveCachedNews();
-      this.renderNews();
-
-    } catch (error) {
-      console.error('News API Error:', error);
-      // Keep cached news visible instead of showing error
-      if (this.newsItems.length > 0) {
-        console.log('Keeping cached news due to fetch error');
-        return;
-      }
-      if (newsList) {
-        newsList.innerHTML = `
-          <div class="error">
-            <p>⚠ خطا در دریافت اخبار</p>
-            <p class="error-details">${error.message}</p>
-            <button class="retry-news-btn">تلاش مجدد</button>
-          </div>
-        `;
-        const retryBtn = newsList.querySelector('.retry-news-btn');
-        if (retryBtn) {
-          safeAddEventListener(retryBtn, 'click', () => this.loadNews());
-        }
       }
     } finally {
       this.isLoading = false;
       if (refreshBtn) {
+        // بازنشانی آیکون به حالت عادی
         refreshBtn.className = 'fas fa-refresh';
       }
     }
