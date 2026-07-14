@@ -104,11 +104,11 @@ export class BookmarksManager {
     faviconDiv.appendChild(faviconImg);
     faviconDiv.appendChild(fallbackSvg);
 
-    // Open link in new tab
+    // Open link
     const content = bookmarkCard.querySelector('.bookmark-content');
     safeAddEventListener(content, 'click', (e) => {
       if (!e.target.closest('.bookmark-actions')) {
-        window.open(bookmark.url, '_blank');
+        window.location.href = bookmark.url;
       }
     });
 
