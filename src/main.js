@@ -18,6 +18,7 @@ import { WeatherManager } from "./modules/weather.js";
 import { StickyNotesManager } from "./modules/stickyNotes.js";
 import { SearchManager } from "./modules/search.js";
 import { getElement, safeAddEventListener, toggleModal } from "./utils/dom.js";
+import { storage } from "./utils/storage.js";
 
 /** Factories for lazily creating modules */
 const MODULE_FACTORIES = {
@@ -49,6 +50,10 @@ class BookinaApp {
       // Settings must load first: it decides which modules are visible
       this.modules.settings = new SettingsManager();
       await this.modules.settings.initialize();
+
+      // Restore user's saved card order (before modules start)
+      await this.applyCardOrder();
+      this.setupCardDragDrop();
 
       // Initialize every enabled module concurrently
       await this.initializeEnabledModules();
@@ -140,6 +145,125 @@ class BookinaApp {
         if (targetPane) targetPane.classList.add("active");
       });
     });
+  }
+
+  // ---------------- Card drag & drop (reorder dashboard widgets) ----------------
+
+  /** Inject a grip handle into every widget header and wire drag events */
+  setupCardDragDrop() {
+    const grid = document.querySelector(".dashboard-grid");
+    if (!grid) return;
+
+    const gripSvg =
+      '<svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor" aria-hidden="true">' +
+      '<circle cx="2.5" cy="2" r="1.4"/><circle cx="7.5" cy="2" r="1.4"/>' +
+      '<circle cx="2.5" cy="7" r="1.4"/><circle cx="7.5" cy="7" r="1.4"/>' +
+      '<circle cx="2.5" cy="12" r="1.4"/><circle cx="7.5" cy="12" r="1.4"/>' +
+      "</svg>";
+
+    grid.querySelectorAll(".widget").forEach((card) => {
+      const hd = card.querySelector(".hd");
+      if (!hd || hd.querySelector(".drag-handle")) return;
+
+      const handle = document.createElement("span");
+      handle.className = "drag-handle";
+      handle.title = "جابه‌جایی کارت";
+      handle.innerHTML = gripSvg;
+      hd.insertBefore(handle, hd.firstChild);
+
+      // Only enable native dragging while the user grabs the handle,
+      // so text selection / inputs inside cards keep working normally.
+      safeAddEventListener(handle, "mousedown", () => {
+        card.draggable = true;
+      });
+      safeAddEventListener(handle, "touchstart", () => {
+        card.draggable = true;
+      });
+      safeAddEventListener(card, "dragend", () => {
+        card.draggable = false;
+      });
+    });
+
+    safeAddEventListener(grid, "dragstart", (e) => {
+      const card = e.target.closest(".widget");
+      if (!card || !card.draggable) return;
+      this._draggingCard = card;
+      card.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", card.dataset.module || "");
+    });
+
+    safeAddEventListener(grid, "dragover", (e) => {
+      if (!this._draggingCard) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      const after = this._getDragAfterElement(grid, e.clientX, e.clientY);
+      if (after == null) grid.appendChild(this._draggingCard);
+      else if (after !== this._draggingCard) grid.insertBefore(this._draggingCard, after);
+    });
+
+    safeAddEventListener(grid, "drop", (e) => {
+      if (this._draggingCard) e.preventDefault();
+    });
+
+    safeAddEventListener(grid, "dragend", () => {
+      if (!this._draggingCard) return;
+      this._draggingCard.classList.remove("dragging");
+      this._draggingCard = null;
+      this.saveCardOrder();
+    });
+  }
+
+  /** Nearest card to the cursor — works with RTL and multi-row grids */
+  _getDragAfterElement(container, x, y) {
+    const cards = [...container.querySelectorAll(".widget:not(.dragging)")];
+    let closest = null;
+    let closestDist = Number.POSITIVE_INFINITY;
+
+    for (const card of cards) {
+      const box = card.getBoundingClientRect();
+      const dx = x - (box.left + box.width / 2);
+      const dy = y - (box.top + box.height / 2);
+      const dist = dx * dx + dy * dy;
+      if (dist < closestDist) {
+        closestDist = dist;
+        closest = card;
+      }
+    }
+    return closest;
+  }
+
+  async saveCardOrder() {
+    try {
+      const grid = document.querySelector(".dashboard-grid");
+      if (!grid) return;
+      const order = [...grid.querySelectorAll(".widget")].map(
+        (el) => el.dataset.module
+      );
+      await storage.set({ cardOrder: order });
+    } catch (error) {
+      console.warn("Failed to save card order:", error);
+    }
+  }
+
+  async applyCardOrder() {
+    try {
+      const result = await storage.get("cardOrder");
+      const order = result.cardOrder;
+      if (!Array.isArray(order) || !order.length) return;
+
+      const grid = document.querySelector(".dashboard-grid");
+      if (!grid) return;
+
+      const cards = [...grid.querySelectorAll(".widget")];
+      // append saved order first, then anything not stored (new modules)
+      order.forEach((id) => {
+        const card = cards.find((c) => c.dataset.module === id);
+        if (card) grid.appendChild(card);
+      });
+    } catch (error) {
+      console.warn("Failed to apply card order:", error);
+    }
   }
 
   setupGlobalEvents() {

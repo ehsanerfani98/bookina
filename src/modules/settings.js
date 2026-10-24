@@ -307,7 +307,7 @@ export class SettingsManager {
       const keys = [
         "bookmarkFolders", "bookmarks", "todos", "habits",
         "stickyNotes", "quickNote", "weatherSettings", "cachedWeather",
-        "cachedNews", "cachedRates", "searchEngine", "bookinaSeeded",
+        "cachedNews", "cachedRates", "searchEngine", "bookinaSeeded", "cardOrder",
       ];
       const data = await this.storage.get(keys);
       const backupData = {
@@ -352,7 +352,7 @@ export class SettingsManager {
         const copyKeys = [
           "bookmarkFolders", "bookmarks", "todos", "habits", "stickyNotes",
           "quickNote", "weatherSettings", "cachedWeather", "cachedNews",
-          "cachedRates", "searchEngine", "bookinaSeeded",
+          "cachedRates", "searchEngine", "bookinaSeeded", "cardOrder",
         ];
         copyKeys.forEach((key) => {
           if (backupData[key] !== undefined) {
