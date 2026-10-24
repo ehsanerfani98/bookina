@@ -110,7 +110,6 @@ export class BookmarksManager {
     await this.loadFolders();
     this.setupEventListeners();
     this.renderFolders();
-    console.log("Bookmarks module initialized");
   }
 
   // ---------------- data ----------------

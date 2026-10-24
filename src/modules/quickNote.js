@@ -29,7 +29,6 @@ export class QuickNoteManager {
       save();
     });
 
-    console.log("QuickNote module initialized");
   }
 
   renderCount() {

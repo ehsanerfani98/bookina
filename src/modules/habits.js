@@ -37,7 +37,6 @@ export class HabitsManager {
     await this.loadHabits();
     this.setupEventListeners();
     this.renderHabits();
-    console.log("Habits module initialized");
   }
 
   async loadHabits() {

@@ -27,7 +27,6 @@ export class ClockManager {
     this.renderMiniWeather();
     // weather module broadcasts fresh data
     window.addEventListener("bookina:weather", () => this.renderMiniWeather());
-    console.log("Clock module initialized");
   }
 
   renderDate() {

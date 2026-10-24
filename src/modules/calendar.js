@@ -40,7 +40,6 @@ export class CalendarManager {
     this.selectedJalali = { year: t.jy, month: t.jm, day: t.jd };
     this.renderCalendar();
     this.updateSelectedInfo();
-    console.log("Calendar module initialized");
   }
 
   renderWeekdays() {

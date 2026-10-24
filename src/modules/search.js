@@ -41,7 +41,6 @@ export class SearchManager {
       this.input?.focus();
     });
 
-    console.log("Search module initialized");
   }
 
   search() {

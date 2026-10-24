@@ -21,7 +21,6 @@ export class StickyNotesManager {
     await this.loadStickyNotes();
     this.setupEventListeners();
     this.renderStickyNotes();
-    console.log("Sticky notes module initialized");
   }
 
   async loadStickyNotes() {

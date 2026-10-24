@@ -58,7 +58,6 @@ class BookinaApp {
       // Initialize every enabled module concurrently
       await this.initializeEnabledModules();
 
-      console.log("Bookina App initialized successfully");
     } catch (error) {
       console.error("Failed to initialize Bookina App:", error);
     }

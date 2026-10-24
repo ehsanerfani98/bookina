@@ -38,7 +38,6 @@ export class WeatherManager {
     await this.loadCached();
     this.fetchWeather();
     this.refreshTimer = setInterval(() => this.fetchWeather(), CACHE_TTL);
-    console.log("Weather module initialized");
   }
 
   async loadSettings() {

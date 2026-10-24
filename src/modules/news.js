@@ -32,7 +32,6 @@ export class NewsManager {
     await this.loadCached();
     this.loadNews();
     this.refreshTimer = setInterval(() => this.loadNews(), CACHE_TTL);
-    console.log("News module initialized");
   }
 
   setupEventListeners() {
@@ -208,36 +207,37 @@ export class NewsManager {
       return;
     }
 
-    const [first, ...rest] = this.items;
+    // const [first, ...rest] = this.items;
+    const rest = this.items;
 
     // featured item
-    const feat = createElement("div", { className: "news" });
+    // const feat = createElement("div", { className: "news" });
     const ph = createElement("div", { className: "ph" });
-    if (first.thumbnail) {
-      const img = createElement("img", { src: first.thumbnail, alt: "" });
-      safeAddEventListener(img, "error", () => {
-        img.remove();
-        ph.textContent = "📰";
-      });
-      ph.appendChild(img);
-    } else {
-      ph.textContent = "📰";
-    }
+    // if (first.thumbnail) {
+    //   const img = createElement("img", { src: first.thumbnail, alt: "" });
+    //   safeAddEventListener(img, "error", () => {
+    //     img.remove();
+    //     ph.textContent = "📰";
+    //   });
+    //   ph.appendChild(img);
+    // } else {
+    //   ph.textContent = "📰";
+    // }
 
     const nt = createElement("div", { className: "nt" });
-    const titleB = createElement("b", {}, first.title);
-    const meta = createElement("span", { className: "sm", style: "color: var(--ac)" },
-      `زومیت${first.pubDate ? " · " + this.formatDate(first.pubDate) : ""}`);
-    nt.appendChild(titleB);
-    nt.appendChild(meta);
-    feat.appendChild(ph);
-    feat.appendChild(nt);
+    // const titleB = createElement("b", {}, first.title);
+    // const meta = createElement("span", { className: "sm", style: "color: var(--ac)" },
+    //   `زومیت${first.pubDate ? " · " + this.formatDate(first.pubDate) : ""}`);
+    // nt.appendChild(titleB);
+    // nt.appendChild(meta);
+    // feat.appendChild(ph);
+    // feat.appendChild(nt);
 
-    safeAddEventListener(feat, "click", () => {
-      if (first.link && first.link !== "#") window.open(first.link, "_blank");
-    });
+    // safeAddEventListener(feat, "click", () => {
+    //   if (first.link && first.link !== "#") window.open(first.link, "_blank");
+    // });
 
-    this.list.appendChild(feat);
+    // this.list.appendChild(feat);
 
     // compact rows
     if (rest.length) {

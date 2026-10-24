@@ -40,7 +40,6 @@ export class SettingsManager {
     this.buildBackgroundThumbs();
     this.applyBackground();
     this.applyModuleVisibility();
-    console.log("Settings module initialized");
   }
 
   getDefaultSettings() {

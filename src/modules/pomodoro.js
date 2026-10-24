@@ -37,7 +37,6 @@ export class PomodoroManager {
     this.setupEventListeners();
     this.render();
     this.startTicking();
-    console.log("Pomodoro module initialized");
   }
 
   async loadState() {

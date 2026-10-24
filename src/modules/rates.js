@@ -28,7 +28,6 @@ export class RatesManager {
     this.setupEventListeners();
     await this.loadCached();
     this.fetchRates();
-    console.log("Rates module initialized");
   }
 
   setupEventListeners() {

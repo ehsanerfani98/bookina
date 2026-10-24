@@ -21,7 +21,6 @@ export class TodosManager {
     await this.loadTodos();
     this.setupEventListeners();
     this.renderTodos();
-    console.log("Todos module initialized");
   }
 
   async loadTodos() {
