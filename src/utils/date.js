@@ -1,104 +1,179 @@
 /**
- * Date Utility - Persian calendar conversions and date formatting
+ * Date Utility - Persian/Jalali/Gregorian/Hijri conversions and formatting
  */
+
+const PERSIAN_DIGITS = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
+
+/** Convert number/string to Persian digits */
+export function toPersianNumber(input) {
+  return String(input).replace(/\d/g, (c) => PERSIAN_DIGITS[c]);
+}
+
+/** Format a number with Persian digits + thousands separator (٬) */
+export function toPersianPrice(input) {
+  const num = Number(String(input).replace(/[^\d.-]/g, ""));
+  if (isNaN(num)) return toPersianNumber(input);
+  return toPersianNumber(Math.round(num).toLocaleString("en-US").replace(/,/g, "٬"));
+}
 
 /**
  * Convert Gregorian date to Jalali (Persian) date
- * @param {number} gy - Gregorian year
- * @param {number} gm - Gregorian month (1-12)
- * @param {number} gd - Gregorian day
- * @returns {{jy: number, jm: number, jd: number}} Jalali date object
+ * Classic 33-year cycle algorithm (battle-tested, matches jdf.scr.ir)
+ * @returns {{jy: number, jm: number, jd: number}}
  */
 export function toJalaali(gy, gm, gd) {
-  const g_d_m = [0,31,59,90,120,151,181,212,243,273,304,334];
-  let gy2 = gy - (gm <= 2 ? 1 : 0);
-  let days = 365 * gy2 + Math.floor((gy2+3)/4) - Math.floor((gy2+99)/100) + Math.floor((gy2+399)/400) + gd + g_d_m[gm-1] - 79;
-  let jy = 621 + 33 * Math.floor(days/12053);
+  const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+  let jy = gy <= 1600 ? 0 : 979;
+  gy -= gy <= 1600 ? 621 : 1600;
+  const gy2 = gm > 2 ? gy + 1 : gy;
+  let days =
+    365 * gy +
+    Math.floor((gy2 + 3) / 4) -
+    Math.floor((gy2 + 99) / 100) +
+    Math.floor((gy2 + 399) / 400) -
+    80 +
+    gd +
+    g_d_m[gm - 1];
+  jy += 33 * Math.floor(days / 12053);
   days %= 12053;
-  jy += 4 * Math.floor(days/1461);
+  jy += 4 * Math.floor(days / 1461);
   days %= 1461;
-  if (days > 365) {
-    jy += Math.floor((days-1)/365);
-    days = (days-1) % 365;
-  }
-  let jm = (days < 186) ? 1 + Math.floor(days/31) : 7 + Math.floor((days-186)/30);
-  let jd = 1 + (days < 186 ? days % 31 : (days-186) % 30);
+  // NOTE: truncation (not floor) is intentional here — matters when days === 0
+  // at the start of a 1461-day block (leap-year boundary, e.g. 1403/1/1)
+  jy += Math.trunc((days - 1) / 365);
+  if (days > 365) days = (days - 1) % 365;
+  const jm = days < 186 ? 1 + Math.floor(days / 31) : 7 + Math.floor((days - 186) / 30);
+  const jd = 1 + (days < 186 ? days % 31 : (days - 186) % 30);
   return { jy, jm, jd };
 }
 
 /**
  * Convert Jalali (Persian) date to Gregorian date
- * @param {number} jy - Jalali year
- * @param {number} jm - Jalali month (1-12)
- * @param {number} jd - Jalali day
- * @returns {{gy: number, gm: number, gd: number}} Gregorian date object
+ * @returns {{gy: number, gm: number, gd: number}}
  */
 export function toGregorian(jy, jm, jd) {
-  let j_day = (jy - 979) * 365 + Math.floor((jy-979)/33)*8 + Math.floor(((jy-979)%33+3)/4);
-  for (let i=0;i<jm-1;i++) j_day += i<6 ? 31 : 30;
-  j_day += jd - 1;
-  let g_day = j_day + 79;
-  let gy = 1600 + 400 * Math.floor(g_day/146097);
-  g_day %= 146097;
-  let leap = true;
-  if (g_day >= 36525) {
-    g_day--;
-    gy += 100 * Math.floor(g_day/36524);
-    g_day %= 36524;
-    if (g_day >= 365) g_day++;
-    else leap = false;
+  jy += 1595;
+  let days =
+    -355668 +
+    365 * jy +
+    Math.floor(jy / 33) * 8 +
+    Math.floor(((jy % 33) + 3) / 4) +
+    jd +
+    (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186);
+  let gy = 400 * Math.floor(days / 146097);
+  days %= 146097;
+  if (days > 36524) {
+    days--;
+    gy += 100 * Math.floor(days / 36524);
+    days %= 36524;
+    if (days >= 365) days++;
   }
-  gy += 4 * Math.floor(g_day/1461);
-  g_day %= 1461;
-  if (g_day >= 366) {
-    leap = false;
-    g_day -= 366;
-    gy += Math.floor(g_day/365);
-    g_day %= 365;
+  gy += 4 * Math.floor(days / 1461);
+  days %= 1461;
+  if (days > 365) {
+    gy += Math.floor((days - 1) / 365);
+    days = (days - 1) % 365;
   }
-  const g_d_m = [31, (leap?29:28),31,30,31,30,31,31,30,31,30,31];
-  let gm=0; while (g_day >= g_d_m[gm]) { g_day -= g_d_m[gm]; gm++; }
-  let gd = g_day + 1;
-  return { gy, gm: gm+1, gd };
+  let gd = days + 1; // day-of-year (1-based)
+  const isLeapGy = (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0;
+  const monthLens = [31, isLeapGy ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  let gm = 0;
+  while (gm < 12 && gd > monthLens[gm]) {
+    gd -= monthLens[gm];
+    gm++;
+  }
+  return { gy, gm: gm + 1, gd };
 }
 
 /**
- * Get number of days in a Jalali month
- * @param {number} jy - Jalali year
- * @param {number} jm - Jalali month (1-12)
+ * Number of days in a Jalali month (33-year cycle leap rule)
  */
 export function getJalaaliMonthDays(jy, jm) {
   if (jm <= 6) return 31;
   if (jm <= 11) return 30;
-  const leapCandidates = [1,5,9,13,17,22,26,30];
-  return leapCandidates.includes((jy-474)%33) ? 30 : 29;
+  // Esfand: leap if (jy % 33) is one of the leap remainders
+  const leapRemainders = [1, 5, 9, 13, 17, 22, 26, 30];
+  return leapRemainders.includes(((jy % 33) + 33) % 33) ? 30 : 29;
 }
 
 /**
- * Get starting day of week for a Jalali month
- * @param {number} jy
- * @param {number} jm
+ * Weekday index (0 = Saturday … 6 = Friday) for a Jalali date
  */
-export function getJalaaliMonthStartDay(jy, jm) {
-  const { gy, gm, gd } = toGregorian(jy, jm, 1);
-  const d = new Date(gy, gm-1, gd).getDay(); // 0=Sunday
-  return (d + 1) % 7; // 0=Saturday
+export function getJalaaliWeekday(jy, jm, jd) {
+  const { gy, gm, gd } = toGregorian(jy, jm, jd);
+  const d = new Date(gy, gm - 1, gd).getDay(); // 0 = Sunday
+  return (d + 1) % 7;
 }
 
 /**
- * Convert number/string to Persian digits
+ * Jalali date of today
  */
-export function toPersianNumber(input) {
-  const digits = ["۰","۱","۲","۳","۴","۵","۶","۷","۸","۹"];
-  return input.toString().replace(/\d/g,c=>digits[c]);
+export function todayJalaali() {
+  const n = new Date();
+  return toJalaali(n.getFullYear(), n.getMonth() + 1, n.getDate());
 }
 
-export const persianMonths = ["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
-export const daysOfWeek = ["شنبه","یکشنبه","دوشنبه","سه‌شنبه","چهارشنبه","پنج‌شنبه","جمعه"];
+/**
+ * Hijri (Islamic) date via Intl — returns {day, monthName, year} in Persian
+ */
+export function hijriToday(date = new Date()) {
+  try {
+    const fmt = new Intl.DateTimeFormat("fa-IR-u-ca-islamic-umalqura", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    const parts = fmt.formatToParts(date);
+    const get = (t) => parts.find((p) => p.type === t)?.value || "";
+    return {
+      day: get("day"),
+      monthName: get("month"),
+      year: get("year"),
+    };
+  } catch (e) {
+    return null;
+  }
+}
 
 /**
- * Format Jalali date to display
+ * Gregorian "24 October" style label in Persian
+ * NOTE: fa-IR defaults to the Persian calendar — must force -u-ca-gregory
  */
-export function formatJalaaliDate(jy,jm,jd) {
-  return `${toPersianNumber(jd)} ${persianMonths[jm-1]} ${toPersianNumber(jy)}`;
+export function gregorianLabel(date = new Date()) {
+  try {
+    return new Intl.DateTimeFormat("fa-IR-u-ca-gregory", {
+      day: "numeric",
+      month: "long",
+    }).format(date);
+  } catch (e) {
+    return "";
+  }
+}
+
+export const persianMonths = [
+  "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
+  "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند",
+];
+
+export const daysOfWeek = [
+  "شنبه", "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنج‌شنبه", "جمعه",
+];
+
+/** Short weekday names for calendar header */
+export const daysOfWeekShort = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
+
+/** Format Jalali date to display: ۲ آبان ۱۴۰۵ */
+export function formatJalaaliDate(jy, jm, jd) {
+  return `${toPersianNumber(jd)} ${persianMonths[jm - 1]} ${toPersianNumber(jy)}`;
+}
+
+/**
+ * Relative time in Persian ("۵ دقیقه پیش")
+ */
+export function timeAgo(date) {
+  const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (diff < 60) return "همین حالا";
+  if (diff < 3600) return `${toPersianNumber(Math.floor(diff / 60))} دقیقه پیش`;
+  if (diff < 86400) return `${toPersianNumber(Math.floor(diff / 3600))} ساعت پیش`;
+  return `${toPersianNumber(Math.floor(diff / 86400))} روز پیش`;
 }

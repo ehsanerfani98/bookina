@@ -4,9 +4,6 @@
 
 /**
  * Get element by ID with optional error handling
- * @param {string} id - Element ID
- * @param {boolean} throwError - Whether to throw error if element not found
- * @returns {HTMLElement|null}
  */
 export function getElement(id, throwError = false) {
   const element = document.getElementById(id);
@@ -18,36 +15,30 @@ export function getElement(id, throwError = false) {
 
 /**
  * Create element with attributes and children
- * @param {string} tag - HTML tag name
- * @param {Object} attributes - Element attributes
- * @param {string|HTMLElement|Array} children - Child elements or text
- * @returns {HTMLElement}
  */
 export function createElement(tag, attributes = {}, children = null) {
   const element = document.createElement(tag);
 
-  // Set attributes
-  Object.keys(attributes).forEach(key => {
-    if (key === 'className') {
+  Object.keys(attributes).forEach((key) => {
+    if (key === "className") {
       element.className = attributes[key];
-    } else if (key === 'innerHTML') {
+    } else if (key === "innerHTML") {
       element.innerHTML = attributes[key];
     } else {
       element.setAttribute(key, attributes[key]);
     }
   });
 
-  // Add children
   if (children) {
     if (Array.isArray(children)) {
-      children.forEach(child => {
-        if (typeof child === 'string') {
+      children.forEach((child) => {
+        if (typeof child === "string") {
           element.appendChild(document.createTextNode(child));
         } else {
           element.appendChild(child);
         }
       });
-    } else if (typeof children === 'string') {
+    } else if (typeof children === "string") {
       element.textContent = children;
     } else {
       element.appendChild(children);
@@ -59,17 +50,12 @@ export function createElement(tag, attributes = {}, children = null) {
 
 /**
  * Safe event listener with error handling
- * @param {HTMLElement} element - Target element
- * @param {string} event - Event type
- * @param {Function} handler - Event handler
- * @param {Object} options - Event options
  */
 export function safeAddEventListener(element, event, handler, options = {}) {
   if (!element) {
-    console.warn('Cannot add event listener to null element');
+    console.warn(`Cannot add ${event} listener to null element`);
     return;
   }
-
   try {
     element.addEventListener(event, handler, options);
   } catch (error) {
@@ -79,7 +65,6 @@ export function safeAddEventListener(element, event, handler, options = {}) {
 
 /**
  * Remove all child elements from a parent
- * @param {HTMLElement} parent - Parent element
  */
 export function clearChildren(parent) {
   if (parent) {
@@ -90,36 +75,120 @@ export function clearChildren(parent) {
 }
 
 /**
- * Toggle modal visibility
- * @param {HTMLElement} modal - Modal element
- * @param {boolean} show - Whether to show or hide
+ * Show / hide a modal by id (adds .open class)
  */
 export function toggleModal(modal, show) {
-  if (modal) {
-    modal.style.display = show ? 'flex' : 'none';
+  if (!modal) return;
+  if (typeof modal === "string") modal = getElement(modal);
+  if (!modal) return;
+  modal.classList.toggle("open", !!show);
+}
+
+/**
+ * Escape HTML special characters to prevent XSS
+ */
+export function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text == null ? "" : String(text);
+  return div.innerHTML;
+}
+
+/**
+ * Format URL for favicon
+ */
+export function getFaviconUrl(url) {
+  try {
+    const domain = new URL(url).hostname;
+    return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+  } catch (e) {
+    return "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2YjcyODAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIvPjxwYXRoIGQ9Ik0yIDEyYzAtNS41MjMgNC40NzcgMTAgMTAtMTBzMTAgNC40NzcgMTAgMTAiLz48L3N2Zz4=";
   }
 }
 
 /**
- * Create modal close handler
- * @param {HTMLElement} modal - Modal element
- * @param {Function} onClose - Additional close handler
- * @returns {Function} Close handler function
+ * Normalize a URL: add https:// if scheme missing
  */
-export function createModalCloseHandler(modal, onClose = null) {
-  return (e) => {
-    if (e.target === modal) {
-      toggleModal(modal, false);
-      if (onClose) onClose();
-    }
+export function normalizeUrl(url) {
+  const u = (url || "").trim();
+  if (!u) return u;
+  if (/^https?:\/\//i.test(u)) return u;
+  return "https://" + u;
+}
+
+/**
+ * Show notification to user (styled via .notification CSS)
+ */
+export function showNotification(message, type = "info", duration = 3500) {
+  const notification = createElement(
+    "div",
+    { className: `notification notification-${type}` },
+    ""
+  );
+  const span = createElement("span", {}, message);
+  const closeBtn = createElement("button", { className: "notification-close" }, "✕");
+  notification.appendChild(span);
+  notification.appendChild(closeBtn);
+  document.body.appendChild(notification);
+
+  const remove = () => {
+    if (notification.parentNode) notification.remove();
   };
+  closeBtn.addEventListener("click", remove);
+  setTimeout(remove, duration);
+}
+
+/**
+ * Confirm dialog with custom message — resolves true/false
+ */
+export function confirmDialog(message, { danger = true, confirmText = "تأیید" } = {}) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.className = "modal open";
+
+    const modalContent = document.createElement("div");
+    modalContent.className = "modal-content";
+    modalContent.style.cssText = "max-width: 360px;";
+
+    const messageEl = document.createElement("p");
+    messageEl.className = "confirm-msg";
+    messageEl.textContent = message;
+
+    const actionsDiv = document.createElement("div");
+    actionsDiv.className = "form-actions";
+    actionsDiv.style.justifyContent = "center";
+
+    const cancelBtn = document.createElement("button");
+    cancelBtn.type = "button";
+    cancelBtn.className = "btn-ghost";
+    cancelBtn.textContent = "انصراف";
+
+    const confirmBtn = document.createElement("button");
+    confirmBtn.type = "button";
+    confirmBtn.className = danger ? "btn-danger" : "btn-accent";
+    confirmBtn.textContent = confirmText;
+
+    actionsDiv.appendChild(cancelBtn);
+    actionsDiv.appendChild(confirmBtn);
+    modalContent.appendChild(messageEl);
+    modalContent.appendChild(actionsDiv);
+    overlay.appendChild(modalContent);
+    document.body.appendChild(overlay);
+
+    const cleanup = (val) => {
+      overlay.remove();
+      resolve(val);
+    };
+
+    cancelBtn.addEventListener("click", () => cleanup(false));
+    confirmBtn.addEventListener("click", () => cleanup(true));
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) cleanup(false);
+    });
+  });
 }
 
 /**
  * Debounce function for performance optimization
- * @param {Function} func - Function to debounce
- * @param {number} wait - Wait time in milliseconds
- * @returns {Function} Debounced function
  */
 export function debounce(func, wait) {
   let timeout;
@@ -132,180 +201,3 @@ export function debounce(func, wait) {
     timeout = setTimeout(later, wait);
   };
 }
-
-/**
- * Format URL for favicon
- * @param {string} url - Website URL
- * @returns {string} Favicon URL
- */
-export function getFaviconUrl(url) {
-  try {
-    const domain = new URL(url).hostname;
-    return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-  } catch (e) {
-    return "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2YjcyODAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIvPjxwYXRoIGQ9Ik0yIDEyYzAtNS41MjMgNC40NzcgMTAgMTAtMTBzMTAgNC40NzcgMTAgMTAiLz48L3N2Zz4=";
-  }
-}
-
-/**
- * Show notification to user
- * @param {string} message - Notification message
- * @param {string} type - Notification type (success, error, warning, info)
- * @param {number} duration - Duration in milliseconds
- */
-export function showNotification(message, type = 'info', duration = 3000) {
-  // Create notification element
-  const notification = createElement('div', {
-    className: `notification notification-${type}`,
-    style: `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 12px 20px;
-      border-radius: 8px;
-      color: white;
-      z-index: 10000;
-      font-family: inherit;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      transition: all 0.3s ease;
-    `
-  }, message);
-
-  // Set background color based on type
-  const colors = {
-    success: '#10b981',
-    error: '#ef4444',
-    warning: '#f59e0b',
-    info: '#3b82f6'
-  };
-
-  notification.style.backgroundColor = colors[type] || colors.info;
-
-  // Add to document
-  document.body.appendChild(notification);
-
-  // Animate in
-  setTimeout(() => {
-    notification.style.transform = 'translateX(0)';
-    notification.style.opacity = '1';
-  }, 10);
-
-  // Remove after duration
-  setTimeout(() => {
-    notification.style.transform = 'translateX(100%)';
-    notification.style.opacity = '0';
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.parentNode.removeChild(notification);
-      }
-    }, 300);
-  }, duration);
-}
-
-/**
- * Confirm dialog with custom message
- * Uses a custom modal instead of window.confirm() for Chrome extension compatibility
- * @param {string} message - Confirmation message
- * @returns {Promise<boolean>}
- */
-export function confirmDialog(message) {
-  return new Promise((resolve) => {
-    // Create overlay
-    const overlay = document.createElement('div');
-    overlay.className = 'modal';
-    overlay.style.display = 'flex';
-
-    const modalContent = document.createElement('div');
-    modalContent.className = 'modal-content';
-    modalContent.style.cssText = 'max-width: 400px; text-align: center; padding: 2rem;';
-
-    const messageEl = document.createElement('p');
-    messageEl.textContent = message;
-    messageEl.style.cssText = 'color: #afafaf; font-size: 14px; margin-bottom: 1.5rem; line-height: 1.8;';
-
-    const actionsDiv = document.createElement('div');
-    actionsDiv.className = 'form-actions';
-    actionsDiv.style.cssText = 'display: flex; justify-content: center; gap: 1rem;';
-
-    const cancelBtn = document.createElement('button');
-    cancelBtn.type = 'button';
-    cancelBtn.className = 'btn-glass';
-    cancelBtn.textContent = 'انصراف';
-
-    const confirmBtn = document.createElement('button');
-    confirmBtn.type = 'button';
-    confirmBtn.className = 'btn-glass';
-    confirmBtn.textContent = 'تأیید حذف';
-    confirmBtn.style.cssText = 'background: #ef4444; color: white; border: none;';
-
-    actionsDiv.appendChild(cancelBtn);
-    actionsDiv.appendChild(confirmBtn);
-    modalContent.appendChild(messageEl);
-    modalContent.appendChild(actionsDiv);
-    overlay.appendChild(modalContent);
-    document.body.appendChild(overlay);
-
-    const cleanup = () => {
-      document.body.removeChild(overlay);
-    };
-
-    cancelBtn.addEventListener('click', () => {
-      cleanup();
-      resolve(false);
-    });
-
-    confirmBtn.addEventListener('click', () => {
-      cleanup();
-      resolve(true);
-    });
-
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) {
-        cleanup();
-        resolve(false);
-      }
-    });
-  });
-}
-
-/**
- * Load external script dynamically
- * @param {string} src - Script source URL
- * @returns {Promise}
- */
-export function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = src;
-    script.onload = resolve;
-    script.onerror = reject;
-    document.head.appendChild(script);
-  });
-}
-
-/**
- * Load external stylesheet dynamically
- * @param {string} href - Stylesheet URL
- * @returns {Promise}
- */
-export function loadStyle(href) {
-  return new Promise((resolve, reject) => {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = href;
-    link.onload = resolve;
-    link.onerror = reject;
-    document.head.appendChild(link);
-    });
-  }
-  
-  /**
-   * Escape HTML special characters to prevent XSS
-   * @param {string} text - Text to escape
-   * @returns {string} Escaped HTML string
-   */
-  export function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }

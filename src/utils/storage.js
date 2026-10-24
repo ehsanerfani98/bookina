@@ -4,98 +4,104 @@
 
 export class StorageManager {
   constructor() {
-    // More specific check for Chrome extension context
-    // In Chrome new tab, we might have chrome object but not storage access
-    this.isChromeExtension = typeof chrome !== 'undefined' &&
+    // Specific check for Chrome extension context
+    this.isChromeExtension =
+      typeof chrome !== "undefined" &&
       chrome.storage &&
       chrome.storage.local &&
-      typeof chrome.storage.local.set === 'function' &&
-      !window.location.href.startsWith('chrome://');
+      typeof chrome.storage.local.set === "function";
   }
 
   /**
    * Get data from storage
-   * @param {string|string[]} keys - Key or array of keys to retrieve
+   * @param {string|string[]} keys
    * @returns {Promise<Object>}
    */
   async get(keys) {
     if (this.isChromeExtension) {
       return new Promise((resolve) => {
-        chrome.storage.local.get(keys, (result) => {
-          resolve(result);
-        });
+        try {
+          chrome.storage.local.get(keys, (result) => resolve(result || {}));
+        } catch (e) {
+          console.error("Chrome storage get error:", e);
+          resolve({});
+        }
       });
-    } else {
-      // Fallback to localStorage for development
-      if (typeof keys === 'string') {
-        const value = localStorage.getItem(keys);
-        return { [keys]: value ? JSON.parse(value) : null };
-      } else {
-        const result = {};
-        keys.forEach(key => {
-          const value = localStorage.getItem(key);
-          result[key] = value ? JSON.parse(value) : null;
-        });
-        return result;
-      }
     }
+
+    // Fallback to localStorage for web mode
+    const read = (key) => {
+      try {
+        const value = localStorage.getItem(key);
+        return value ? JSON.parse(value) : null;
+      } catch (e) {
+        return null;
+      }
+    };
+    if (typeof keys === "string") {
+      return { [keys]: read(keys) };
+    }
+    const result = {};
+    keys.forEach((key) => {
+      result[key] = read(key);
+    });
+    return result;
   }
 
   /**
    * Set data in storage
-   * @param {Object} data - Data to store
+   * @param {Object} data
    * @returns {Promise<void>}
    */
   async set(data) {
-    console.log('StorageManager.set called with:', data);
-    console.log('isChromeExtension:', this.isChromeExtension);
-
     if (this.isChromeExtension) {
       return new Promise((resolve, reject) => {
         try {
           chrome.storage.local.set(data, () => {
             if (chrome.runtime.lastError) {
-              console.error('Chrome storage error:', chrome.runtime.lastError);
+              console.error("Chrome storage error:", chrome.runtime.lastError);
               reject(chrome.runtime.lastError);
             } else {
-              console.log('Data saved to Chrome storage successfully');
               resolve();
             }
           });
         } catch (error) {
-          console.error('Error in Chrome storage set:', error);
+          console.error("Error in Chrome storage set:", error);
           reject(error);
         }
       });
-    } else {
-      Object.keys(data).forEach(key => {
-        localStorage.setItem(key, JSON.stringify(data[key]));
-        console.log(`Data saved to localStorage: ${key} =`, data[key]);
-      });
-      return Promise.resolve();
     }
+    Object.keys(data).forEach((key) => {
+      try {
+        localStorage.setItem(key, JSON.stringify(data[key]));
+      } catch (e) {
+        console.error(`localStorage set failed for ${key}:`, e);
+      }
+    });
+    return Promise.resolve();
   }
 
   /**
    * Remove data from storage
-   * @param {string|string[]} keys - Key or array of keys to remove
+   * @param {string|string[]} keys
    * @returns {Promise<void>}
    */
   async remove(keys) {
     if (this.isChromeExtension) {
       return new Promise((resolve) => {
-        chrome.storage.local.remove(keys, () => {
+        try {
+          chrome.storage.local.remove(keys, () => resolve());
+        } catch (e) {
           resolve();
-        });
+        }
       });
-    } else {
-      if (typeof keys === 'string') {
-        localStorage.removeItem(keys);
-      } else {
-        keys.forEach(key => localStorage.removeItem(key));
-      }
-      return Promise.resolve();
     }
+    if (typeof keys === "string") {
+      localStorage.removeItem(keys);
+    } else {
+      keys.forEach((key) => localStorage.removeItem(key));
+    }
+    return Promise.resolve();
   }
 
   /**
@@ -105,14 +111,15 @@ export class StorageManager {
   async clear() {
     if (this.isChromeExtension) {
       return new Promise((resolve) => {
-        chrome.storage.local.clear(() => {
+        try {
+          chrome.storage.local.clear(() => resolve());
+        } catch (e) {
           resolve();
-        });
+        }
       });
-    } else {
-      localStorage.clear();
-      return Promise.resolve();
     }
+    localStorage.clear();
+    return Promise.resolve();
   }
 }
 

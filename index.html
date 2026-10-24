@@ -1,257 +1,356 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>بوکینا</title>
-  <link rel="stylesheet" href="css/clock.css" />
   <link rel="stylesheet" href="styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
-<body style="background-position: center;background-size: cover;height: 100vh;">
+<body>
+  <!-- نوار بالای صفحه -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-ic">📚</span>
+      <span class="brand-tx">بوکینا</span>
+    </div>
 
+    <!-- جست‌وجو -->
+    <div class="search-wrap" data-module="search" id="mod-search">
+      <div class="search-box">
+        <span class="search-ic">🔍</span>
+        <input type="text" id="searchInput" placeholder="جست‌وجو… (کلید /)" autocomplete="off" />
+        <select id="searchEngine" title="موتور جست‌وجو">
+          <option value="google">گوگل</option>
+          <option value="bing">بینگ</option>
+          <option value="duckduckgo">داک‌داک‌گو</option>
+          <option value="wikipedia">ویکی‌پدیا</option>
+        </select>
+      </div>
+    </div>
 
- <!-- محتوای تب اصلی -->
- <div class="tab-content">
-  <div id="main-tab" class="tab-pane active">
-    <div class="dashboard-grid">
-      <!-- ستون ۱: ToDo -->
-      <div class="widget card">
-        <div class="todo-input">
-          <button id="addTodo" class="btn-glass-icon">
-            <i class="fas fa-plus"></i>
-          </button>
-          <input type="text" id="todoInput" placeholder="عنوان تسک" />
-        </div>
-        <ul id="todoList" class="todo-list" dir="ltr"></ul>
-      </div>
-  
-      <!-- ستون ۲: بوکمارک‌ها -->
-      <div class="widget card">
-        <header>
-          <button id="addBookmark" class="btn-glass-icon">
-            <i class="fas fa-plus"></i>
-          </button>
-          <h3>سایت‌های منتخب</h3>
-        </header>
-        <div id="bookmarksContainer" class="bookmarks-grid"></div>
-      </div>
-  
-      <!-- ستون ۳: ابزارها -->
-      <div class="widget-column">
-        <div class="widget card news-widget">
-          <div class="news-header mb10">
-            <h3>📰 تازه‌ترین خبرها</h3>
-            <i class="fas fa-refresh" id="refresh"></i>
+    <div class="topbar-actions">
+      <button class="mini-btn" id="settingsBtn" title="تنظیمات">⚙️</button>
+    </div>
+  </header>
+
+  <!-- محتوای تب اصلی -->
+  <div class="tab-content">
+    <div id="main-tab" class="tab-pane active">
+      <div class="dashboard-grid">
+
+        <!-- ساعت و تاریخ -->
+        <section class="card hl widget" data-module="clock" id="mod-clock">
+          <div class="hd"><span class="ic">🕒</span>ساعت و تاریخ</div>
+          <div class="clock-grid">
+            <div class="box clock-date">
+              <div class="sm" id="clockWeekday">—</div>
+              <div class="big" id="clockDay">—</div>
+              <div class="md" id="clockMonthYear">—</div>
+              <div class="sm alt-dates" id="clockAltDates">—</div>
+            </div>
+            <div class="clock-side">
+              <div class="box clock-time">
+                <div class="big time" id="clockTime">—</div>
+                <div class="sm">به وقت تهران</div>
+              </div>
+              <div class="box row between clock-weather" id="clockWeather" hidden>
+                <span class="cw-temp" id="cwTemp">—</span>
+                <span class="sm" id="cwDesc">—</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- تقویم -->
+        <section class="card widget" data-module="calendar" id="mod-calendar">
+          <div class="hd"><span class="ic">📅</span>تقویم<span class="sp"></span>
+            <button class="mini-btn sm-txt" id="calToday" title="برو به امروز">امروز</button>
+          </div>
+          <div class="calendar-header">
+            <button class="nav-btn" id="prevMonth" title="ماه قبل">›</button>
+            <h3 id="calendarMonthYear">—</h3>
+            <button class="nav-btn" id="nextMonth" title="ماه بعد">‹</button>
+          </div>
+          <div class="cal" id="calendarWeekdays"></div>
+          <div class="cal days" id="calendarDays"></div>
+          <div class="cal-footer">
+            <div id="currentDayName">—</div>
+            <span class="vl"></span>
+            <div id="currentJalaaliDate">—</div>
+          </div>
+        </section>
+
+        <!-- عادت‌ها -->
+        <section class="card widget" data-module="habits" id="mod-habits">
+          <div class="hd"><span class="ic ic-orange">🔥</span>عادت‌ها<span class="sp"></span>
+            <button class="mini-btn" id="addHabit" title="عادت جدید">+</button>
+          </div>
+          <div id="habitsList" class="stack"></div>
+        </section>
+
+        <!-- تسک‌ها -->
+        <section class="card widget" data-module="tasks" id="mod-tasks">
+          <div class="hd"><span class="ic">✅</span>تسک‌ها<span class="sp"></span>
+            <span class="sm" id="tasksCount">۰/۰</span>
+            <button class="mini-btn" id="addTodo" title="تسک جدید">+</button>
+          </div>
+          <div class="todo-input-row" id="todoInputRow" hidden>
+            <input type="text" id="todoInput" placeholder="عنوان تسک و Enter…" autocomplete="off" />
+          </div>
+          <div id="todoList" class="stack"></div>
+        </section>
+
+        <!-- پومودورو -->
+        <section class="card widget" data-module="pomodoro" id="mod-pomodoro">
+          <div class="hd"><span class="ic ic-purple">⏱</span>پومودورو</div>
+          <div class="seg" id="pomoSeg">
+            <span class="on" data-mode="work">کار</span>
+            <span data-mode="break">استراحت</span>
+          </div>
+          <div class="ring-wrap">
+            <svg viewBox="0 0 120 120" class="ring-svg">
+              <circle cx="60" cy="60" r="54" class="ring-bg"></circle>
+              <circle cx="60" cy="60" r="54" class="ring-fg" id="pomoRing"></circle>
+            </svg>
+            <div class="ring-txt" id="pomoDisplay">۲۵:۰۰</div>
+          </div>
+          <div class="row center gap8">
+            <button class="mini-btn round primary" id="pomoStart" title="شروع / توقف">▶</button>
+            <button class="mini-btn round" id="pomoReset" title="ریست">↻</button>
+          </div>
+          <div class="sm center mt8" id="pomoCount">امروز: ۰ پومودورو</div>
+        </section>
+
+        <!-- یادداشت سریع -->
+        <section class="card widget" data-module="quicknote" id="mod-quicknote">
+          <div class="hd"><span class="ic">🗒</span>یادداشت سریع</div>
+          <div class="box note-box">
+            <input type="text" id="qnTitle" class="qn-title" placeholder="عنوان…" maxlength="60" />
+            <textarea id="qnBody" class="qn-body" placeholder="ایده‌ات را بنویس…"></textarea>
+            <div class="sm qn-count" id="qnCount">۰ کاراکتر</div>
+          </div>
+        </section>
+
+        <!-- ارزها -->
+        <section class="card widget" data-module="rates" id="mod-rates">
+          <div class="hd"><span class="ic ic-green">💱</span>ارزها<span class="sp"></span>
+            <span class="sm" id="ratesUpdated"></span>
+            <button class="mini-btn" id="ratesRefresh" title="به‌روزرسانی">⟳</button>
+          </div>
+          <div id="ratesList" class="stack"></div>
+        </section>
+
+        <!-- بوکمارک‌ها -->
+        <section class="card widget" data-module="bookmarks" id="mod-bookmarks">
+          <div class="hd"><span class="ic ic-green">🔖</span>بوکمارک‌ها<span class="sp"></span>
+            <span class="sm" id="foldersCount"></span>
+            <button class="mini-btn" id="addFolder" title="پوشه جدید">+</button>
+          </div>
+          <div class="bk" id="foldersGrid"></div>
+        </section>
+
+        <!-- اخبار -->
+        <section class="card widget" data-module="news" id="mod-news">
+          <div class="hd"><span class="ic">📰</span>اخبار<span class="sp"></span>
+            <button class="mini-btn" id="refresh" title="به‌روزرسانی">⇄</button>
           </div>
           <div id="newsList">
-            <div class="spinner"></div>
+            <div class="center" style="padding:24px 0"><div class="spinner"></div></div>
           </div>
-        </div>
-  
-  
-        <!-- 🔹 وضعیت هوا -->
-        <div class="widget card weather-widget">
-          <div class="news-header mb10">
-            <h3>🌦 وضعیت هوا</h3>
-            <select id="citySelect">
-              <option value="Qazvin">قزوین</option>
+        </section>
+
+        <!-- آب‌وهوا -->
+        <section class="card widget" data-module="weather" id="mod-weather">
+          <div class="hd"><span class="ic ic-blue">🌦</span>آب‌وهوا<span class="sp"></span>
+            <select id="citySelect" class="hd-select">
               <option value="Tehran">تهران</option>
+              <option value="Qazvin">قزوین</option>
               <option value="Mashhad">مشهد</option>
               <option value="Isfahan">اصفهان</option>
               <option value="Tabriz">تبریز</option>
               <option value="Shiraz">شیراز</option>
+              <option value="Karaj">کرج</option>
+              <option value="Ahvaz">اهواز</option>
+              <option value="Yazd">یزد</option>
+              <option value="Rasht">رشت</option>
+              <option value="Bandar_Abbas">بندرعباس</option>
             </select>
           </div>
           <div id="weatherInfo"></div>
-        </div>
-  
-        <div class="widget card calendar-widget">
-          <div class="calendar-header">
-            <button id="prevMonth" class="calendar-nav-btn">
-              <i class="fas fa-chevron-right"></i>
-            </button>
-            <h3 id="calendarMonthYear">فروردین 1403</h3>
-            <button id="nextMonth" class="calendar-nav-btn">
-              <i class="fas fa-chevron-left"></i>
-            </button>
-          </div>
-          <div class="calendar-grid">
-            <div class="calendar-weekdays">
-              <div>ش</div>
-              <div>ی</div>
-              <div>د</div>
-              <div>س</div>
-              <div>چ</div>
-              <div>پ</div>
-              <div>ج</div>
-            </div>
-            <div id="calendarDays" class="calendar-days">
-              <!-- Days will be populated by JavaScript -->
-            </div>
-          </div>
-          <div class="current-date-footer">
-            <div id="currentDayName">شنبه</div>
-            <span class="vl"></span>
-            <div id="currentJalaaliDate">۱ فروردین ۱۴۰۳</div>
-          </div>
-        </div>
-  
-        <!-- <div class="widget card backup-controls">
-        </div> -->
-  
-  
+        </section>
+
+      </div>
+    </div>
+
+    <!-- محتوای تب استیکی نوت‌ها -->
+    <div id="notes-tab" class="tab-pane">
+      <div class="notes-toolbar">
+        <button id="addStickyNote" class="btn-accent">+ یادداشت جدید</button>
+      </div>
+      <div class="sticky-notes-container" id="stickyNotesContainer"></div>
+    </div>
+  </div>
+
+  <!-- مودال پوشه (لیست لینک‌ها) -->
+  <div id="folderModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-hd">
+        <h2 id="folderModalTitle">پوشه</h2>
+        <button class="mini-btn modal-close" data-close="folderModal">✕</button>
+      </div>
+      <div id="folderLinks" class="folder-links"></div>
+      <div class="form-actions">
+        <button type="button" id="addLinkToFolder" class="btn-accent">+ افزودن لینک</button>
       </div>
     </div>
   </div>
-  
-  <!-- محتوای تب استیکی نوت‌ها -->
-  <div id="notes-tab" class="tab-pane">
-    <button id="addStickyNote" class="btn-glass-icon">
-      <i class="fas fa-sticky-note"></i>
-    </button>
-    <div class="sticky-notes-container" id="stickyNotesContainer">
-      <!-- استیکی نوت‌ها به صورت داینامیک اینجا اضافه می‌شوند -->
-    </div>
-  </div>
-</div>
 
-
-
-
-
-
-  <!-- Add/Edit Modal -->
-  <div id="bookmarkModal" class="modal">
+  <!-- مودال فرم پوشه -->
+  <div id="folderFormModal" class="modal">
     <div class="modal-content">
-      <h2 id="modalTitle">اضافه کردن آدرس</h2>
-      <form id="bookmarkForm">
+      <div class="modal-hd">
+        <h2 id="folderFormTitle">پوشه جدید</h2>
+        <button class="mini-btn modal-close" data-close="folderFormModal">✕</button>
+      </div>
+      <form id="folderForm">
         <div class="form-group">
-          <label for="title">عنوان</label>
-          <input type="text" id="title" required />
+          <label for="folderName">نام پوشه</label>
+          <input type="text" id="folderName" required maxlength="30" placeholder="مثلاً شبکه‌های اجتماعی" />
         </div>
         <div class="form-group">
-          <label for="url">آدرس</label>
-          <input type="url" id="url" required placeholder="https://example.com" />
+          <label>رنگ پوشه</label>
+          <div class="color-picker" id="folderColors"></div>
         </div>
         <div class="form-actions">
-          <button type="button" id="cancelBtn" class="btn-glass">
-            انصراف
-          </button>
-          <button type="submit" class="btn-glass">ذخیره</button>
+          <button type="button" class="btn-ghost" data-close="folderFormModal">انصراف</button>
+          <button type="submit" class="btn-accent">ذخیره</button>
         </div>
       </form>
     </div>
   </div>
 
-
-  <div class="clock">
-    <div class="clock-img">
-      <img src="images/clock.png" alt="clock" />
-    </div>
-    <div class="hour">
-      <span class="hr" id="hr"></span>
-    </div>
-    <div class="minute">
-      <span class="min" id="min"></span>
-    </div>
-    <div class="second">
-      <span class="sec" id="sec"></span>
-    </div>
-  </div>
-
-  <div id="settingModal" class="modal">
+  <!-- مودال فرم لینک -->
+  <div id="linkModal" class="modal">
     <div class="modal-content">
-      <h2 id="modalTitleSettings">تنظیمات</h2>
-      <div class="wrap-setting">
-        <h4>انتخاب پس‌ زمینه</h4>
-        <div id="backgrounds">
+      <div class="modal-hd">
+        <h2 id="linkModalTitle">لینک جدید</h2>
+        <button class="mini-btn modal-close" data-close="linkModal">✕</button>
+      </div>
+      <form id="linkForm">
+        <div class="form-group">
+          <label for="linkTitle">عنوان</label>
+          <input type="text" id="linkTitle" required maxlength="60" placeholder="مثلاً گیت‌هاب" />
         </div>
+        <div class="form-group">
+          <label for="linkUrl">آدرس</label>
+          <input type="url" id="linkUrl" required placeholder="https://example.com" />
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-ghost" data-close="linkModal">انصراف</button>
+          <button type="submit" class="btn-accent">ذخیره</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-        <h4 style="margin-top: 1rem;">انتخاب پس‌ زمینه سفارشی</h4>
+  <!-- مودال عادت -->
+  <div id="habitModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-hd">
+        <h2 id="habitModalTitle">عادت جدید</h2>
+        <button class="mini-btn modal-close" data-close="habitModal">✕</button>
+      </div>
+      <form id="habitForm">
+        <div class="form-group">
+          <label for="habitName">نام عادت</label>
+          <input type="text" id="habitName" required maxlength="30" placeholder="مثلاً ورزش روزانه" />
+        </div>
+        <div class="form-group">
+          <label for="habitTarget">هدف هفتگی (روز در هفته)</label>
+          <input type="number" id="habitTarget" min="1" max="7" value="3" required />
+        </div>
+        <div class="form-group">
+          <label>رنگ</label>
+          <div class="color-picker" id="habitColors"></div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-ghost" data-close="habitModal">انصراف</button>
+          <button type="submit" class="btn-accent">ذخیره</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
+  <!-- تنظیمات -->
+  <div id="settingModal" class="modal">
+    <div class="modal-content settings-content">
+      <div class="modal-hd">
+        <h2>تنظیمات</h2>
+        <button class="mini-btn modal-close" data-close="settingModal">✕</button>
+      </div>
+      <div class="settings-tabs">
+        <button class="on" data-sec="modules">ماژول‌ها</button>
+        <button data-sec="appearance">ظاهر</button>
+        <button data-sec="backup">پشتیبان‌گیری</button>
+      </div>
+
+      <!-- ماژول‌ها -->
+      <div id="sec-modules" class="settings-sec">
+        <p class="sm sec-hint">هر ماژول را می‌توانید خاموش یا روشن کنید؛ تغییرات بلافاصله اعمال می‌شود.</p>
+        <div id="moduleToggles"></div>
+      </div>
+
+      <!-- ظاهر -->
+      <div id="sec-appearance" class="settings-sec" hidden>
+        <h4>پس‌زمینه</h4>
+        <div id="backgrounds" class="bg-grid"></div>
+
+        <h4 class="mt16">پس‌زمینه سفارشی</h4>
         <div class="custom-background-upload">
-          <button id="uploadBackgroundBtn" class="btn-glass-icon">
-            <i class="fas fa-upload"></i>
-          </button>
-          <input type="file" id="backgroundUpload" accept="image/*" style="display: none" />
-          <button id="removeCustomBackgroundBtn" class="btn-glass-icon" style="display: none;">
-            <i class="fas fa-trash"></i>
-          </button>
+          <button id="uploadBackgroundBtn" class="btn-accent">انتخاب تصویر…</button>
+          <input type="file" id="backgroundUpload" accept="image/*" hidden />
+          <button id="removeCustomBackgroundBtn" class="btn-ghost" hidden>حذف پس‌زمینه سفارشی</button>
         </div>
       </div>
-      <div class="wrap-setting">
+
+      <!-- پشتیبان‌گیری -->
+      <div id="sec-backup" class="settings-sec" hidden>
         <h4>بکاپ</h4>
+        <p class="sm sec-hint">تمام داده‌ها (بوکمارک‌ها، تسک‌ها، عادت‌ها، یادداشت‌ها و تنظیمات) در یک فایل ذخیره یا از آن بازیابی می‌شود.</p>
         <div class="backup-button">
-          <button id="exportBackup" class="btn-primary glass-bg">
-            بکاپ گیری
-          </button>
-          <button id="importBackup" class="btn-primary glass-bg">
-            بازگردانی بکاپ
-          </button>
-          <input type="file" id="importFile" accept="application/json" style="display: none" />
+          <button id="exportBackup" class="btn-accent">⬇ بکاپ‌گیری</button>
+          <button id="importBackup" class="btn-ghost">⬆ بازگردانی بکاپ</button>
+          <input type="file" id="importFile" accept="application/json" hidden />
         </div>
+        <h4 class="mt16">بازنشانی</h4>
+        <button id="resetSettings" class="btn-danger">بازنشانی تنظیمات به حالت پیش‌فرض</button>
       </div>
     </div>
   </div>
 
-
-<!-- ویجت استیکی نوت -->
-<!-- <div id="stickyNotesContainer"></div> -->
-
-
-
-<div id="stickyNoteModal" class="modal">
-  <div class="modal-content">
-    <h2>رنگ یادداشت</h2>
-    <div class="color-picker">
-      <div class="color-option" data-color="#ffeb3b" style="background-color: #ffeb3b;"></div>
-      <div class="color-option" data-color="#e91e63" style="background-color: #e91e63;"></div>
-      <div class="color-option" data-color="#9c27b0" style="background-color: #9c27b0;"></div>
-      <div class="color-option" data-color="#673ab7" style="background-color: #673ab7;"></div>
-      <div class="color-option" data-color="#3f51b5" style="background-color: #3f51b5;"></div>
-      <div class="color-option" data-color="#2196f3" style="background-color: #2196f3;"></div>
-      <div class="color-option" data-color="#00bcd4" style="background-color: #00bcd4;"></div>
-      <div class="color-option" data-color="#009688" style="background-color: #009688;"></div>
-      <div class="color-option" data-color="#4caf50" style="background-color: #4caf50;"></div>
-      <div class="color-option" data-color="#ff9800" style="background-color: #ff9800;"></div>
-      <div class="color-option" data-color="#ff5722" style="background-color: #ff5722;"></div>
-      <div class="color-option" data-color="#795548" style="background-color: #795548;"></div>
-    </div>
-    <div class="form-actions">
-      <button type="button" id="cancelColorBtn" class="btn-glass">انصراف</button>
+  <!-- مودال رنگ یادداشت -->
+  <div id="stickyNoteModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-hd">
+        <h2>رنگ یادداشت</h2>
+        <button class="mini-btn modal-close" data-close="stickyNoteModal">✕</button>
+      </div>
+      <div class="color-picker" id="noteColors"></div>
     </div>
   </div>
-</div>
 
-
-
-
-<!-- تب‌های پایین صفحه -->
-<div class="tab-container">
-  <div class="tabs">
-    <div class="tab active" data-tab="main-tab">
-      <i class="fas fa-home"></i>
-      <span>داشبورد</span>
-    </div>
-    <div class="tab" data-tab="notes-tab">
-      <i class="fas fa-sticky-note"></i>
-      <span>یادداشت‌ها</span>
+  <!-- تب‌های پایین صفحه -->
+  <div class="tab-container">
+    <div class="tabs">
+      <div class="tab active" data-tab="main-tab"><span>🏠</span><span>داشبورد</span></div>
+      <div class="tab" data-tab="notes-tab" id="notesTabBtn"><span>🗒</span><span>یادداشت‌ها</span></div>
     </div>
   </div>
-</div>
 
+  <span class="version">نسخه ۲.۰.۰</span>
 
-
-
-  <span class="version">نسخه 1.5.0</span>
-  <span id="settingsBtn">تنظیمات</span>
-
-  <script src="src/modules/clock.js"></script>
   <script type="module" src="script.js"></script>
 </body>
 

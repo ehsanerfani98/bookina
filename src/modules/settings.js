@@ -1,212 +1,258 @@
 /**
  * Settings Manager Module
- * Handles application settings and configuration management
+ * Handles app settings: module on/off toggles, appearance (background), backup/restore
  */
-import { getElement, safeAddEventListener } from '../utils/dom.js';
-import { StorageManager } from '../utils/storage.js';
+
+import { getElement, safeAddEventListener, showNotification, toggleModal, confirmDialog } from "../utils/dom.js";
+import { StorageManager } from "../utils/storage.js";
+
+/** Catalog of toggleable modules shown in settings */
+export const MODULE_INFO = [
+  { id: "search", name: "جست‌وجو", desc: "نوار جست‌وجوی بالای صفحه" },
+  { id: "clock", name: "ساعت و تاریخ", desc: "کارت ساعت، تاریخ شمسی/میلادی/قمری" },
+  { id: "calendar", name: "تقویم", desc: "تقویم شمسی با ناوبری ماه‌ها" },
+  { id: "habits", name: "عادت‌ها", desc: "پیگیری عادت‌های هفتگی" },
+  { id: "tasks", name: "تسک‌ها", desc: "لیست کارهای روزانه" },
+  { id: "pomodoro", name: "پومودورو", desc: "تایمر کار و استراحت" },
+  { id: "quicknote", name: "یادداشت سریع", desc: "یادداشت متنی در داشبورد" },
+  { id: "rates", name: "ارز و طلا", desc: "نرخ دلار، یورو و طلای ۱۸ عیار" },
+  { id: "bookmarks", name: "بوکمارک‌ها", desc: "پوشه‌های لینک‌های پرکاربرد" },
+  { id: "news", name: "اخبار", desc: "تازه‌ترین خبرهای زیومیت" },
+  { id: "weather", name: "آب‌وهوا", desc: "وضعیت هوا و جزئیات کامل" },
+  { id: "notes", name: "یادداشت‌های چسبان", desc: "تب یادداشت‌های رنگی سراگرد" },
+];
 
 export class SettingsManager {
   constructor() {
     this.storage = new StorageManager();
     this.settings = {};
     this.availableBackgrounds = [
-      'bg1.jpg', 'bg2.jpg', 'bg3.jpg', 'bg4.jpg',
-      'bg5.jpg', 'bg6.jpg', 'bg7.jpg', 'bg8.jpg'
+      "bg1.jpg", "bg2.jpg", "bg3.jpg", "bg4.jpg",
+      "bg5.jpg", "bg6.jpg", "bg7.jpg", "bg8.jpg",
     ];
   }
 
   async initialize() {
-    try {
-      await this.loadSettings();
-      this.setupEventListeners();
-      this.setupBackgroundSelection();
-      this.applySettings();
-      console.log('Settings module initialized');
-    } catch (error) {
-      console.error('Failed to initialize settings module:', error);
-    }
-  }
-
-  async loadSettings() {
-    const result = await this.storage.get('appSettings');
-    this.settings = result.appSettings || this.getDefaultSettings();
-  }
-
-  async saveSettings() {
-    console.log('saveSettings called with:', this.settings);
-    try {
-      await this.storage.set({ appSettings: this.settings });
-      console.log('Settings saved successfully');
-    } catch (error) {
-      console.error('Error saving settings:', error);
-    }
+    await this.loadSettings();
+    this.normalizeSettings();
+    this.setupEventListeners();
+    this.buildModuleToggles();
+    this.buildBackgroundThumbs();
+    this.applyBackground();
+    this.applyModuleVisibility();
+    console.log("Settings module initialized");
   }
 
   getDefaultSettings() {
+    const modules = {};
+    MODULE_INFO.forEach((m) => (modules[m.id] = true));
     return {
-      theme: 'light',
-      language: 'fa',
-      background: 'bg1.jpg',
+      background: "default",
       customBackground: null,
-      autoRefresh: {
-        weather: true,
-        news: true
-      },
-      notifications: {
-        enabled: true,
-        sound: true
-      },
-      layout: {
-        compactMode: false,
-        sidebarPosition: 'left'
-      }
+      modules,
     };
   }
 
-  setupEventListeners() {
-    const settingsBtn = getElement('settingsBtn');
-    const settingModal = getElement('settingModal');
-    const exportBtn = getElement('exportBackup');
-    const importBtn = getElement('importBackup');
-    const importFile = getElement('importFile');
-    const uploadBackgroundBtn = getElement('uploadBackgroundBtn');
-    const backgroundUpload = getElement('backgroundUpload');
-    const removeCustomBackgroundBtn = getElement('removeCustomBackgroundBtn');
-
-    if (settingsBtn) {
-      safeAddEventListener(settingsBtn, 'click', () => this.showSettings());
-    }
-
-    if (settingModal) {
-      safeAddEventListener(settingModal, 'click', (e) => {
-        if (e.target === settingModal) {
-          this.hideSettings();
-        }
-      });
-    }
-
-    if (exportBtn) {
-      safeAddEventListener(exportBtn, 'click', () => this.exportBackup());
-    }
-
-    if (importBtn) {
-      safeAddEventListener(importBtn, 'click', () => importFile?.click());
-    }
-
-    if (importFile) {
-      safeAddEventListener(importFile, 'change', (e) => this.importBackup(e));
-    }
-
-    // Custom background upload
-    if (uploadBackgroundBtn) {
-      safeAddEventListener(uploadBackgroundBtn, 'click', () => backgroundUpload?.click());
-    }
-
-    if (backgroundUpload) {
-      safeAddEventListener(backgroundUpload, 'change', (e) => this.handleBackgroundUpload(e));
-    }
-
-    if (removeCustomBackgroundBtn) {
-      safeAddEventListener(removeCustomBackgroundBtn, 'click', () => this.removeCustomBackground());
-    }
-
-    // Theme selection (only if element exists)
-    this.setupThemeSelection();
+  async loadSettings() {
+    const result = await this.storage.get("appSettings");
+    this.settings = result.appSettings || this.getDefaultSettings();
   }
 
-  setupBackgroundSelection() {
-    const backgroundsContainer = getElement('backgrounds');
-    if (!backgroundsContainer) return;
+  /** Merge defaults for settings saved by older versions */
+  normalizeSettings() {
+    const def = this.getDefaultSettings();
+    this.settings = {
+      ...def,
+      ...this.settings,
+      modules: { ...def.modules, ...(this.settings.modules || {}) },
+    };
+  }
 
-    // Clear existing backgrounds
-    backgroundsContainer.innerHTML = '';
+  async saveSettings() {
+    try {
+      await this.storage.set({ appSettings: this.settings });
+    } catch (error) {
+      console.error("Error saving settings:", error);
+    }
+  }
 
-    // Create background thumbnails
-    this.availableBackgrounds.forEach(img => {
-      const thumb = document.createElement('div');
-      thumb.className = 'bg-thumb';
+  isModuleEnabled(id) {
+    return this.settings.modules[id] !== false;
+  }
+
+  async setModuleEnabled(id, enabled) {
+    this.settings.modules[id] = !!enabled;
+    await this.saveSettings();
+    if (window.bookinaApp) {
+      window.bookinaApp.applyModuleEnabled(id, !!enabled);
+    }
+  }
+
+  /** Show/hide module widgets according to settings (called before modules init) */
+  applyModuleVisibility() {
+    MODULE_INFO.forEach((m) => {
+      this._applyVisibility(m.id, this.isModuleEnabled(m.id));
+    });
+  }
+
+  _applyVisibility(id, enabled) {
+    if (id === "notes") {
+      const btn = getElement("notesTabBtn");
+      if (btn) btn.classList.toggle("mod-off", !enabled);
+      return;
+    }
+    const el = document.querySelector(`[data-module="${id}"]`);
+    if (el) el.classList.toggle("mod-off", !enabled);
+  }
+
+  // ---------------- UI construction ----------------
+
+  buildModuleToggles() {
+    const wrap = getElement("moduleToggles");
+    if (!wrap) return;
+    wrap.innerHTML = "";
+
+    MODULE_INFO.forEach((m) => {
+      const row = document.createElement("div");
+      row.className = "toggle-row";
+
+      const text = document.createElement("div");
+      const b = document.createElement("b");
+      b.textContent = m.name;
+      const p = document.createElement("p");
+      p.className = "sm";
+      p.textContent = m.desc;
+      text.appendChild(b);
+      text.appendChild(p);
+
+      const label = document.createElement("label");
+      label.className = "switch";
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.checked = this.isModuleEnabled(m.id);
+      input.dataset.moduleId = m.id;
+      const slider = document.createElement("span");
+      label.appendChild(input);
+      label.appendChild(slider);
+
+      safeAddEventListener(input, "change", () => {
+        this.setModuleEnabled(m.id, input.checked);
+      });
+
+      row.appendChild(text);
+      row.appendChild(label);
+      wrap.appendChild(row);
+    });
+  }
+
+  buildBackgroundThumbs() {
+    const container = getElement("backgrounds");
+    if (!container) return;
+    container.innerHTML = "";
+
+    // "default" gradient option
+    const defThumb = document.createElement("div");
+    defThumb.className = "bg-thumb bg-default";
+    defThumb.dataset.bg = "default";
+    defThumb.textContent = "پیش‌فرض";
+    safeAddEventListener(defThumb, "click", () => this.changeBackground("default"));
+    container.appendChild(defThumb);
+
+    this.availableBackgrounds.forEach((img) => {
+      const thumb = document.createElement("div");
+      thumb.className = "bg-thumb";
       thumb.style.backgroundImage = `url('images/${img}')`;
-      thumb.dataset.img = img;
-
-      if (this.settings.background === img) {
-        thumb.classList.add('selected');
-      }
-
-      safeAddEventListener(thumb, 'click', () => {
-        this.changeBackground(img);
-      });
-
-      backgroundsContainer.appendChild(thumb);
+      thumb.dataset.bg = img;
+      safeAddEventListener(thumb, "click", () => this.changeBackground(img));
+      container.appendChild(thumb);
     });
+
+    this.updateSettingsDisplay();
   }
 
-  setupThemeSelection() {
-    const themeSelect = getElement('themeSelect');
-    if (!themeSelect) return;
+  setupEventListeners() {
+    const settingsBtn = getElement("settingsBtn");
+    const settingModal = getElement("settingModal");
+    const exportBtn = getElement("exportBackup");
+    const importBtn = getElement("importBackup");
+    const importFile = getElement("importFile");
+    const uploadBackgroundBtn = getElement("uploadBackgroundBtn");
+    const backgroundUpload = getElement("backgroundUpload");
+    const removeCustomBackgroundBtn = getElement("removeCustomBackgroundBtn");
+    const resetBtn = getElement("resetSettings");
 
-    themeSelect.value = this.settings.theme;
+    safeAddEventListener(settingsBtn, "click", () => this.showSettings());
 
-    safeAddEventListener(themeSelect, 'change', (e) => {
-      this.changeTheme(e.target.value);
+    safeAddEventListener(settingModal, "click", (e) => {
+      if (e.target === settingModal) this.hideSettings();
     });
+
+    // settings section tabs
+    document.querySelectorAll(".settings-tabs button").forEach((btn) => {
+      safeAddEventListener(btn, "click", () => {
+        document
+          .querySelectorAll(".settings-tabs button")
+          .forEach((x) => x.classList.remove("on"));
+        btn.classList.add("on");
+        const sec = btn.dataset.sec;
+        document.querySelectorAll(".settings-sec").forEach((s) => {
+          s.hidden = s.id !== `sec-${sec}`;
+        });
+      });
+    });
+
+    safeAddEventListener(exportBtn, "click", () => this.exportBackup());
+    safeAddEventListener(importBtn, "click", () => importFile?.click());
+    safeAddEventListener(importFile, "change", (e) => this.importBackup(e));
+    safeAddEventListener(resetBtn, "click", () => this.handleReset());
+
+    // custom background
+    safeAddEventListener(uploadBackgroundBtn, "click", () => backgroundUpload?.click());
+    safeAddEventListener(backgroundUpload, "change", (e) => this.handleBackgroundUpload(e));
+    safeAddEventListener(removeCustomBackgroundBtn, "click", () => this.removeCustomBackground());
   }
 
   showSettings() {
-    const settingModal = getElement('settingModal');
-    if (settingModal) {
-      settingModal.style.display = 'flex';
-      this.updateSettingsDisplay();
-    }
+    toggleModal("settingModal", true);
+    this.updateSettingsDisplay();
   }
 
   hideSettings() {
-    const settingModal = getElement('settingModal');
-    if (settingModal) {
-      settingModal.style.display = 'none';
-    }
+    toggleModal("settingModal", false);
   }
 
   updateSettingsDisplay() {
-    // Update all settings controls to reflect current values
-    const themeSelect = getElement('themeSelect');
-    if (themeSelect) {
-      themeSelect.value = this.settings.theme;
-    }
-
-    // Update background selection
-    document.querySelectorAll('.bg-thumb').forEach(thumb => {
-      thumb.classList.toggle('selected', thumb.dataset.img === this.settings.background);
+    document.querySelectorAll(".bg-thumb").forEach((thumb) => {
+      const isCustom = !!this.settings.customBackground;
+      thumb.classList.toggle(
+        "selected",
+        !isCustom && thumb.dataset.bg === this.settings.background
+      );
     });
-
-    // Update custom background UI
     this.updateCustomBackgroundUI();
   }
 
+  // ---------------- Appearance ----------------
+
   changeBackground(backgroundImage) {
-    console.log('changeBackground called with:', backgroundImage);
     this.settings.background = backgroundImage;
+    this.settings.customBackground = null;
     this.saveSettings();
     this.applyBackground();
     this.updateSettingsDisplay();
   }
 
-  changeTheme(theme) {
-    this.settings.theme = theme;
-    this.saveSettings();
-    this.applyTheme();
-  }
-
-  applySettings() {
-    this.applyBackground();
-    this.applyTheme();
-    this.updateCustomBackgroundUI();
-  }
-
   applyBackground() {
+    const body = document.body;
     if (this.settings.customBackground) {
-      document.body.style.backgroundImage = `url(${this.settings.customBackground})`;
+      body.style.backgroundImage = `url(${this.settings.customBackground})`;
+      body.classList.add("bg-image");
+    } else if (this.settings.background && this.settings.background !== "default") {
+      body.style.backgroundImage = `url('images/${this.settings.background}')`;
+      body.classList.add("bg-image");
     } else {
-      document.body.style.backgroundImage = `url('images/${this.settings.background}')`;
+      body.style.backgroundImage = "";
+      body.classList.remove("bg-image");
     }
   }
 
@@ -214,107 +260,79 @@ export class SettingsManager {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      this.showNotification('لطفاً یک فایل تصویری انتخاب کنید', 'error');
+    if (!file.type.startsWith("image/")) {
+      showNotification("لطفاً یک فایل تصویری انتخاب کنید", "error");
       return;
     }
-
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      this.showNotification('حجم فایل نباید بیشتر از ۵ مگابایت باشد', 'error');
+      showNotification("حجم فایل نباید بیشتر از ۵ مگابایت باشد", "error");
       return;
     }
 
     const reader = new FileReader();
-    
     reader.onload = (e) => {
       try {
-        const dataUrl = e.target.result;
-        this.settings.customBackground = dataUrl;
+        this.settings.customBackground = e.target.result;
         this.saveSettings();
         this.applyBackground();
-        this.updateCustomBackgroundUI();
-        this.showNotification('پس‌زمینه سفارشی با موفقیت اعمال شد ✅', 'success');
+        this.updateSettingsDisplay();
+        showNotification("پس‌زمینه سفارشی با موفقیت اعمال شد ✅", "success");
       } catch (error) {
-        console.error('Error processing background image:', error);
-        this.showNotification('خطا در پردازش تصویر ❌', 'error');
+        console.error("Error processing background image:", error);
+        showNotification("خطا در پردازش تصویر ❌", "error");
       }
     };
-
-    reader.onerror = () => {
-      this.showNotification('خطا در خواندن فایل ❌', 'error');
-    };
-
+    reader.onerror = () => showNotification("خطا در خواندن فایل ❌", "error");
     reader.readAsDataURL(file);
-    
-    // Reset file input
-    event.target.value = '';
+    event.target.value = "";
   }
 
   removeCustomBackground() {
     this.settings.customBackground = null;
     this.saveSettings();
     this.applyBackground();
-    this.updateCustomBackgroundUI();
-    this.showNotification('پس‌زمینه سفارشی حذف شد', 'info');
+    this.updateSettingsDisplay();
+    showNotification("پس‌زمینه سفارشی حذف شد", "info");
   }
 
   updateCustomBackgroundUI() {
-    const removeCustomBackgroundBtn = getElement('removeCustomBackgroundBtn');
-    if (removeCustomBackgroundBtn) {
-      if (this.settings.customBackground) {
-        removeCustomBackgroundBtn.style.display = 'block';
-      } else {
-        removeCustomBackgroundBtn.style.display = 'none';
-      }
-    }
+    const btn = getElement("removeCustomBackgroundBtn");
+    if (btn) btn.hidden = !this.settings.customBackground;
   }
 
-  applyTheme() {
-    // Remove existing theme classes
-    document.body.classList.remove('theme-light', 'theme-dark');
-
-    // Add current theme class
-    document.body.classList.add(`theme-${this.settings.theme}`);
-  }
+  // ---------------- Backup ----------------
 
   async exportBackup() {
     try {
-      // Collect data from all modules
-      const bookmarksResult = await this.storage.get('bookmarks');
-      const todosResult = await this.storage.get('todos');
-      const stickyNotesResult = await this.storage.get('stickyNotes');
-      const weatherSettingsResult = await this.storage.get('weatherSettings');
-      const newsSettingsResult = await this.storage.get('newsSettings');
-
+      const keys = [
+        "bookmarkFolders", "bookmarks", "todos", "habits",
+        "stickyNotes", "quickNote", "weatherSettings", "cachedWeather",
+        "cachedNews", "cachedRates", "searchEngine", "bookinaSeeded",
+      ];
+      const data = await this.storage.get(keys);
       const backupData = {
-        bookmarks: bookmarksResult.bookmarks || [],
-        todos: todosResult.todos || [],
-        stickyNotes: stickyNotesResult.stickyNotes || [],
+        ...data,
         settings: this.settings,
-        weatherSettings: weatherSettingsResult.weatherSettings || {},
-        newsSettings: newsSettingsResult.newsSettings || {},
         exportDate: new Date().toISOString(),
-        version: '1.0.0'
+        version: "2.0.0",
       };
 
       const dataStr = JSON.stringify(backupData, null, 2);
-      const blob = new Blob([dataStr], { type: 'application/json' });
+      const blob = new Blob([dataStr], { type: "application/json" });
       const url = URL.createObjectURL(blob);
 
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = `Bookina-backup-${Date.now()}.json`;
+      a.download = `Bookina-backup-${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      this.showNotification('بکاپ با موفقیت ذخیره شد ✅', 'success');
+      showNotification("بکاپ با موفقیت ذخیره شد ✅", "success");
     } catch (error) {
-      console.error('Export backup error:', error);
-      this.showNotification('خطا در ذخیره بکاپ ❌', 'error');
+      console.error("Export backup error:", error);
+      showNotification("خطا در ذخیره بکاپ ❌", "error");
     }
   }
 
@@ -322,140 +340,90 @@ export class SettingsManager {
     const file = event.target.files[0];
     if (!file) return;
 
-    try {
-      const reader = new FileReader();
-
-      reader.onload = async (e) => {
-        try {
-          const backupData = JSON.parse(e.target.result);
-
-          // Validate backup structure
-          if (!this.validateBackupData(backupData)) {
-            throw new Error('فرمت فایل بکاپ نامعتبر است');
-          }
-
-          // Restore data to storage
-          const restorePromises = [];
-
-          if (backupData.bookmarks) {
-            restorePromises.push(this.storage.set({ bookmarks: backupData.bookmarks }));
-          }
-
-          if (backupData.todos) {
-            restorePromises.push(this.storage.set({ todos: backupData.todos }));
-          }
-
-          if (backupData.stickyNotes) {
-            restorePromises.push(this.storage.set({ stickyNotes: backupData.stickyNotes }));
-          }
-
-          if (backupData.settings) {
-            this.settings = { ...this.settings, ...backupData.settings };
-            restorePromises.push(this.saveSettings());
-          }
-
-          if (backupData.weatherSettings) {
-            restorePromises.push(this.storage.set({ weatherSettings: backupData.weatherSettings }));
-          }
-
-          if (backupData.newsSettings) {
-            restorePromises.push(this.storage.set({ newsSettings: backupData.newsSettings }));
-          }
-
-          await Promise.all(restorePromises);
-
-          // Apply settings
-          this.applySettings();
-
-          // Refresh all modules
-          if (window.bookinaApp) {
-            await window.bookinaApp.refreshAll();
-          }
-
-          this.showNotification('بکاپ با موفقیت بازیابی شد ✅', 'success');
-
-          // Reset file input
-          event.target.value = '';
-
-        } catch (error) {
-          console.error('Import backup error:', error);
-          this.showNotification('فایل بکاپ معتبر نیست ❌', 'error');
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const backupData = JSON.parse(e.target.result);
+        if (!this.validateBackupData(backupData)) {
+          throw new Error("invalid backup");
         }
-      };
 
-      reader.readAsText(file);
-    } catch (error) {
-      console.error('File read error:', error);
-      this.showNotification('خطا در خواندن فایل ❌', 'error');
-    }
+        const restorePromises = [];
+        const copyKeys = [
+          "bookmarkFolders", "bookmarks", "todos", "habits", "stickyNotes",
+          "quickNote", "weatherSettings", "cachedWeather", "cachedNews",
+          "cachedRates", "searchEngine", "bookinaSeeded",
+        ];
+        copyKeys.forEach((key) => {
+          if (backupData[key] !== undefined) {
+            restorePromises.push(this.storage.set({ [key]: backupData[key] }));
+          }
+        });
+
+        if (backupData.settings) {
+          this.settings = { ...this.getDefaultSettings(), ...backupData.settings };
+          this.normalizeSettings();
+          restorePromises.push(this.saveSettings());
+        }
+
+        await Promise.all(restorePromises);
+        this.applyBackground();
+        this.applyModuleVisibility();
+        this.buildModuleToggles();
+        this.updateSettingsDisplay();
+
+        if (window.bookinaApp) {
+          await window.bookinaApp.refreshAll();
+        }
+
+        showNotification("بکاپ با موفقیت بازیابی شد — در حال نوسازی… ✅", "success");
+        setTimeout(() => window.location.reload(), 800);
+      } catch (error) {
+        console.error("Import backup error:", error);
+        showNotification("فایل بکاپ معتبر نیست ❌", "error");
+      } finally {
+        event.target.value = "";
+      }
+    };
+    reader.readAsText(file);
   }
 
   validateBackupData(data) {
-    // Basic validation - check if it has expected structure
-    return data && (
-      Array.isArray(data.bookmarks) ||
-      Array.isArray(data.todos) ||
-      Array.isArray(data.stickyNotes) ||
-      typeof data.settings === 'object'
+    return (
+      data &&
+      (Array.isArray(data.bookmarkFolders) ||
+        Array.isArray(data.bookmarks) ||
+        Array.isArray(data.todos) ||
+        Array.isArray(data.habits) ||
+        typeof data.settings === "object")
     );
   }
 
-  showNotification(message, type = 'info') {
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
-      <span>${message}</span>
-      <button class="notification-close">&times;</button>
-    `;
+  async handleReset() {
+    const confirmed = await confirmDialog(
+      "تمام تنظیمات به حالت پیش‌فرض برمی‌گردد. داده‌های شما (بوکمارک‌ها، تسک‌ها و…) حذف نمی‌شود. ادامه می‌دهید؟",
+      { danger: true, confirmText: "بازنشانی" }
+    );
+    if (!confirmed) return;
 
-    // Add to page
-    document.body.appendChild(notification);
-
-    // Add close functionality
-    const closeBtn = notification.querySelector('.notification-close');
-    safeAddEventListener(closeBtn, 'click', () => {
-      notification.remove();
-    });
-
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.remove();
-      }
-    }, 5000);
-  }
-
-  // Public API methods
-  getSetting(key, defaultValue = null) {
-    return this.settings[key] !== undefined ? this.settings[key] : defaultValue;
-  }
-
-  async setSetting(key, value) {
-    this.settings[key] = value;
-    await this.saveSettings();
-    this.applySettings();
-  }
-
-  async resetSettings() {
     this.settings = this.getDefaultSettings();
     await this.saveSettings();
-    this.applySettings();
+    this.applyBackground();
+    this.applyModuleVisibility();
+    this.buildModuleToggles();
+    this.buildBackgroundThumbs();
     this.updateSettingsDisplay();
-  }
-
-  async saveState() {
-    await this.saveSettings();
+    showNotification("تنظیمات بازنشانی شد", "success");
   }
 
   async refresh() {
     await this.loadSettings();
-    this.applySettings();
-    this.updateSettingsDisplay();
+    this.normalizeSettings();
+    this.applyBackground();
+    this.applyModuleVisibility();
   }
 
-  // Get current settings for external use
-  getCurrentSettings() {
-    return { ...this.settings };
+  async saveState() {
+    await this.saveSettings();
   }
 }
