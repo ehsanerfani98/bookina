@@ -23,7 +23,7 @@ export class ClockManager {
   async initialize() {
     this.renderDate();
     this.renderTime();
-    this.timer = setInterval(() => this.renderTime(), 15000);
+    this.timer = setInterval(() => this.renderTime(), 1000);
     this.renderMiniWeather();
     // weather module broadcasts fresh data
     window.addEventListener("bookina:weather", () => this.renderMiniWeather());
@@ -55,21 +55,27 @@ export class ClockManager {
   }
 
   renderTime() {
-    const el = getElement("clockTime");
-    if (!el) return;
+    const main = getElement("clockTimeMain");
+    const sec = getElement("clockSeconds");
+    if (!main) return;
     try {
-      const fmt = new Intl.DateTimeFormat("en-GB", {
+      const parts = new Intl.DateTimeFormat("en-GB", {
         hour: "2-digit",
         minute: "2-digit",
+        second: "2-digit",
         hour12: false,
         timeZone: "Asia/Tehran",
-      });
-      el.textContent = toPersianNumber(fmt.format(new Date()));
+      })
+        .format(new Date())
+        .split(":");
+      main.textContent = toPersianNumber(`${parts[0]}:${parts[1]}`);
+      if (sec) sec.textContent = toPersianNumber(parts[2]);
     } catch (e) {
       const n = new Date();
-      el.textContent = toPersianNumber(
+      main.textContent = toPersianNumber(
         `${String(n.getHours()).padStart(2, "0")}:${String(n.getMinutes()).padStart(2, "0")}`
       );
+      if (sec) sec.textContent = toPersianNumber(String(n.getSeconds()).padStart(2, "0"));
     }
   }
 

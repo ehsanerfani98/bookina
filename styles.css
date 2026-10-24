@@ -121,14 +121,36 @@ select {
 }
 
 /* ============================ چیدمان ============================ */
+/* ============================================================
+   مقیاس نمایش — با عرض ۱۵۰۰px همه المان‌ها به تناسب بزرگ می‌شوند
+   ۱۱۸۰ × زوم ۱.۲۷ ≈ ۱۵۰۰px عرض واقعی رندرشده
+   ============================================================ */
+html {
+  zoom: 1.27;
+}
+
+@media (max-width: 1300px) {
+  html {
+    zoom: 1.12;
+  }
+}
+
+@media (max-width: 1100px) {
+  html {
+    zoom: 1;
+  }
+}
+
 .wrap {
-  max-width: 1500px;
+  /* ۱۱۸۰ × ۱.۲۷ زوم = ۱۵۰۰px */
+  max-width: 1180px;
   margin: 0 auto;
   padding: 0 20px;
 }
 
 .topbar {
-  max-width: 1500px;
+  /* ۱۱۸۰ × ۱.۲۷ زوم = ۱۵۰۰px */
+  max-width: 1180px;
   margin: 0 auto;
   padding: 18px 20px 0;
   display: flex;
@@ -163,7 +185,8 @@ select {
 }
 
 .tab-content {
-  max-width: 1500px;
+  /* ۱۱۸۰ × ۱.۲۷ زوم = ۱۵۰۰px */
+  max-width: 1180px;
   margin: 0 auto;
   padding: 16px 20px 110px;
 }
@@ -226,7 +249,7 @@ select {
   flex: none;
   margin-inline-end: -4px;
   cursor: grab;
-  color: var(--tx-dim);
+  color: var(--mu);
   opacity: 0.45;
   border-radius: 6px;
   transition: opacity 0.15s ease, background 0.15s ease;
@@ -466,6 +489,14 @@ select {
 
 .big.time {
   font-size: 30px;
+  font-variant-numeric: tabular-nums;
+}
+
+.big.time .sec {
+  font-size: 0.55em;
+  font-weight: 600;
+  color: var(--mu);
+  margin-inline-start: 5px;
   font-variant-numeric: tabular-nums;
 }
 
