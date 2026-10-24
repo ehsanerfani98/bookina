@@ -15,7 +15,7 @@ import { timeAgo } from "../utils/date.js";
 const FEED_URL = "https://www.zoomit.ir/feed";
 const API_URL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(FEED_URL)}`;
 const PROXY_URL = `https://api.allorigins.win/raw?url=${encodeURIComponent(FEED_URL + "/")}`;
-const MAX_ITEMS = 8;
+const MAX_ITEMS = 6;
 const CACHE_TTL = 2 * 60 * 60 * 1000; // 2 hours
 
 export class NewsManager {
